@@ -1,17 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { normalizeSkills } from "@/lib/normalize";
+import { flagForReview } from "@/lib/authenticity";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  // Steps 2-4 (validation, normalization, dedup) will go here
+  const { data: existing, error: lookupError } = await supabase
+    .from("candidates")
+    .select("id")
+    .eq("email", body.email)
+    .maybeSingle();
+
+  if (lookupError) {
+    return NextResponse.json({ error: lookupError.message }, { status: 500 });
+  }
+
+  if (existing) {
+    return NextResponse.json(
+      { error: "A submission with this email already exists." },
+      { status: 409 }
+    );
+  }
+
+  const normalizedSkills = normalizeSkills(body.skills);
+  const authCheck = flagForReview(normalizedSkills);
 
   const { error } = await supabase.from("candidates").insert({
     name: body.name,
     email: body.email,
-    skills: body.skills,
+    skills: normalizedSkills.join(", "),
     resume_url: body.resumeUrl,
     linkedin_url: body.linkedinUrl || null,
+    flagged: authCheck.flagged,
+    flag_reason: authCheck.reason || null,
   });
 
   if (error) {

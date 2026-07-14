@@ -14,7 +14,9 @@ export default function StudentForm() {
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
   });
+
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const onSubmit = async (data: StudentFormData) => {
     const res = await fetch("/api/candidates", {
@@ -24,12 +26,14 @@ export default function StudentForm() {
     });
 
     if (!res.ok) {
-      console.error("Submission error");
+      const result = await res.json();
+      setErrorMessage(result.error || "Something went wrong. Please try again.");
       setSubmitStatus("error");
       return;
     }
 
     setSubmitStatus("success");
+    setErrorMessage("");
     reset();
   };
 
@@ -72,11 +76,12 @@ export default function StudentForm() {
       >
         {isSubmitting ? "Submitting..." : "Submit"}
       </button>
+
       {submitStatus === "success" && (
         <p className="text-green-400 text-sm">Submitted successfully!</p>
       )}
       {submitStatus === "error" && (
-        <p className="text-red-400 text-sm">Something went wrong. Please try again.</p>
+        <p className="text-red-400 text-sm">{errorMessage}</p>
       )}
     </form>
   );
