@@ -1,6 +1,8 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { supabase } from "@/lib/supabaseClient";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { studentFormSchema, StudentFormData } from "@/lib/schemas";
 
@@ -13,13 +15,26 @@ export default function StudentForm() {
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
   });
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
 
-  const onSubmit = (data: StudentFormData) => {
-    console.log("Form data:", data);
-    // Phase 3 will replace this with an actual API call to save to Supabase
-    reset();
-  };
+  const onSubmit = async (data: StudentFormData) => {
+  const { error } = await supabase.from("candidates").insert({
+    name: data.name,
+    email: data.email,
+    skills: data.skills,
+    resume_url: data.resumeUrl,
+    linkedin_url: data.linkedinUrl || null,
+  });
 
+  if (error) {
+    console.error("Supabase insert error:", error);
+    setSubmitStatus("error");
+    return;
+  }
+
+  setSubmitStatus("success");
+  reset();
+};
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto flex flex-col gap-4 p-6">
       <div>
@@ -59,6 +74,12 @@ export default function StudentForm() {
       >
         {isSubmitting ? "Submitting..." : "Submit"}
       </button>
+      {submitStatus === "success" && (
+  <p className="text-green-400 text-sm">Submitted successfully!</p>
+)}
+{submitStatus === "error" && (
+  <p className="text-red-400 text-sm">Something went wrong. Please try again.</p>
+)}
     </form>
   );
 }
