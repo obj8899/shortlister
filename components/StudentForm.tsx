@@ -37,51 +37,64 @@ export default function StudentForm() {
     reset();
   };
 
+  const fieldClass =
+    "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] placeholder:text-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-shadow";
+  const labelClass =
+    "block text-xs font-mono uppercase tracking-wider text-[var(--ink)]/60 mb-1.5";
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto flex flex-col gap-4 p-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-w-md w-full bg-white/60 border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-5 shadow-sm"
+    >
       <div>
-        <label className="block text-sm mb-1">Name</label>
-        <input {...register("name")} className="w-full p-2 rounded bg-neutral-800 text-white" />
-        {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
+        <h2 className="font-display text-2xl text-[var(--ink)] mb-1">Candidate entry</h2>
+        <p className="text-sm text-[var(--ink)]/60">Submit your details for review.</p>
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Email</label>
-        <input {...register("email")} className="w-full p-2 rounded bg-neutral-800 text-white" />
-        {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+        <label className={labelClass}>Name</label>
+        <input {...register("name")} className={fieldClass} />
+        {errors.name && <p className="text-[var(--clay)] text-xs mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Skills (comma separated)</label>
-        <input {...register("skills")} className="w-full p-2 rounded bg-neutral-800 text-white" />
-        {errors.skills && <p className="text-red-400 text-sm mt-1">{errors.skills.message}</p>}
+        <label className={labelClass}>Email</label>
+        <input {...register("email")} className={fieldClass} />
+        {errors.email && <p className="text-[var(--clay)] text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Resume URL</label>
-        <input {...register("resumeUrl")} className="w-full p-2 rounded bg-neutral-800 text-white" />
-        {errors.resumeUrl && <p className="text-red-400 text-sm mt-1">{errors.resumeUrl.message}</p>}
+        <label className={labelClass}>Skills (comma separated)</label>
+        <input {...register("skills")} className={fieldClass} placeholder="Python, SQL, React" />
+        {errors.skills && <p className="text-[var(--clay)] text-xs mt-1">{errors.skills.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">LinkedIn URL (optional)</label>
-        <input {...register("linkedinUrl")} className="w-full p-2 rounded bg-neutral-800 text-white" />
-        {errors.linkedinUrl && <p className="text-red-400 text-sm mt-1">{errors.linkedinUrl.message}</p>}
+        <label className={labelClass}>Resume URL</label>
+        <input {...register("resumeUrl")} className={fieldClass} placeholder="https://..." />
+        {errors.resumeUrl && <p className="text-[var(--clay)] text-xs mt-1">{errors.resumeUrl.message}</p>}
+      </div>
+
+      <div>
+        <label className={labelClass}>LinkedIn URL (optional)</label>
+        <input {...register("linkedinUrl")} className={fieldClass} placeholder="https://linkedin.com/in/..." />
+        {errors.linkedinUrl && <p className="text-[var(--clay)] text-xs mt-1">{errors.linkedinUrl.message}</p>}
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-white text-black rounded p-2 mt-2 font-medium disabled:opacity-50"
+        className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] transition-colors disabled:opacity-50"
       >
-        {isSubmitting ? "Submitting..." : "Submit"}
+        {isSubmitting ? "Submitting…" : "Submit entry"}
       </button>
 
       {submitStatus === "success" && (
-        <p className="text-green-400 text-sm">Submitted successfully!</p>
+        <p className="text-[var(--ledger)] text-sm font-mono">✓ Entry recorded successfully.</p>
       )}
       {submitStatus === "error" && (
-        <p className="text-red-400 text-sm">{errorMessage}</p>
+        <p className="text-[var(--clay)] text-sm font-mono">{errorMessage}</p>
       )}
     </form>
   );
