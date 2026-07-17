@@ -36,6 +36,16 @@ export default function Home() {
 >
   Run Stage 3 AI Evaluator (test only)
 </button>
+<button
+  onClick={async () => {
+    const res = await fetch("/api/stage4", { method: "POST" });
+    const data = await res.json();
+    alert(`Ranked: ${data.totalRanked}, Shortlisted: ${data.shortlisted}, Failed: ${data.failedCount}`);
+  }}
+  className="mt-4 bg-green-600 text-white p-2 rounded"
+>
+  Run Stage 4 Ranking (test only)
+</button>
     </main>
   );
 }
