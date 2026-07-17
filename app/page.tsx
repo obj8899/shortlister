@@ -26,6 +26,16 @@ export default function Home() {
 >
   Run Stage 2 Embeddings (test only)
 </button>
+<button
+  onClick={async () => {
+    const res = await fetch("/api/stage3", { method: "POST" });
+    const data = await res.json();
+    alert(`Passed: ${data.passedCount}, Rejected: ${data.rejectedCount}, Failed: ${data.failedCount}`);
+  }}
+  className="mt-4 bg-red-600 text-white p-2 rounded"
+>
+  Run Stage 3 AI Evaluator (test only)
+</button>
     </main>
   );
 }
