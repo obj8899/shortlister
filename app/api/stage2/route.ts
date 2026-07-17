@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { generateEmbedding } from "@/lib/embeddings";
+import { cosineSimilarity } from "@/lib/similarity";
+import { TARGET_PROFILE_TEXT } from "@/lib/targetProfile";
+
+const SIMILARITY_THRESHOLD = 0.7;
 
 export async function POST() {
   const { data: candidates, error } = await supabase
@@ -13,19 +17,25 @@ export async function POST() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  let processedCount = 0;
+  const targetEmbedding = await generateEmbedding(TARGET_PROFILE_TEXT);
+
+  let passedCount = 0;
+  let rejectedCount = 0;
   let failedCount = 0;
 
   for (const candidate of candidates) {
     try {
-      const embeddingArray = await generateEmbedding(candidate.skills);
-      const embeddingString = `[${embeddingArray.join(",")}]`;
+      const candidateEmbedding = await generateEmbedding(candidate.skills);
+      const score = cosineSimilarity(candidateEmbedding, targetEmbedding);
+      const passed = score >= SIMILARITY_THRESHOLD;
+      const embeddingString = `[${candidateEmbedding.join(",")}]`;
 
       const { error: updateError } = await supabase
         .from("candidates")
         .update({
           embedding: embeddingString,
-          stage2_status: "processed",
+          similarity_score: score,
+          stage2_status: passed ? "passed" : "rejected",
         })
         .eq("id", candidate.id);
 
@@ -35,12 +45,12 @@ export async function POST() {
         continue;
       }
 
-      processedCount++;
+      passed ? passedCount++ : rejectedCount++;
     } catch (err) {
-      console.error(`Failed to generate embedding for candidate ${candidate.id}:`, err);
+      console.error(`Failed to process candidate ${candidate.id}:`, err);
       failedCount++;
     }
   }
 
-  return NextResponse.json({ processedCount, failedCount }, { status: 200 });
+  return NextResponse.json({ passedCount, rejectedCount, failedCount }, { status: 200 });
 }

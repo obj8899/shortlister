@@ -20,7 +20,7 @@ export default function Home() {
   onClick={async () => {
     const res = await fetch("/api/stage2", { method: "POST" });
     const data = await res.json();
-    alert(`Processed: ${data.processedCount}, Failed: ${data.failedCount}`);
+    alert(`Passed: ${data.passedCount}, Rejected: ${data.rejectedCount}, Failed: ${data.failedCount}`);
   }}
   className="mt-4 bg-purple-600 text-white p-2 rounded"
 >
