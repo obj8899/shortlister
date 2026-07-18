@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import AdminGuard from "@/components/AdminGuard";
 import CandidateLedger from "@/components/CandidateLedger";
 import ReviewPanel from "@/components/ReviewPanel";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface Stats {
   total: number;
@@ -69,36 +70,39 @@ function AdminDashboard() {
     <main className="min-h-screen bg-[var(--paper)] px-6 py-12">
       <div className="max-w-5xl mx-auto">
         <header className="mb-12 flex items-start justify-between">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-[var(--ochre)] mb-2">
-              Admin dashboard
-            </p>
-            <h1 className="font-display text-4xl md:text-5xl text-[var(--ink)] italic">
-              Shortlister
-            </h1>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="text-xs font-mono uppercase tracking-wide text-[var(--ink)]/50 hover:text-[var(--clay)] border border-[var(--mist)] px-3 py-1.5 rounded-sm"
-          >
-            Log out
-          </button>
-        </header>
+  <div>
+    <p className="font-mono text-xs uppercase tracking-widest text-[var(--ochre)] mb-2">
+      Admin dashboard
+    </p>
+    <h1 className="font-display text-4xl md:text-5xl text-[var(--ink)] italic">
+      Shortlister
+    </h1>
+  </div>
+  <div className="flex items-center gap-3">
+    <ThemeToggle />
+    <button
+      onClick={handleLogout}
+      className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--clay)] border border-[var(--mist)] px-3 py-1.5 rounded-sm"
+    >
+      Log out
+    </button>
+  </div>
+</header>
 
         <div className="flex flex-col gap-8">
-          <section className="bg-white/60 border border-[var(--mist)] rounded-sm p-6">
+          <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
             <h2 className="font-display text-xl text-[var(--ink)] mb-1">Pipeline</h2>
-            <p className="text-sm text-[var(--ink)]/60 mb-5">
+            <p className="text-sm text-[var(--ink-muted)] mb-5">
               {stats?.total ?? 0} total entries in the ledger.
             </p>
             <div className="flex flex-col gap-3">
               {stages.map((s) => (
                 <div
                   key={s.num}
-                  className="flex items-center justify-between border border-[var(--mist)] rounded-sm px-4 py-3 bg-white/40"
+                  className="flex items-center justify-between border border-[var(--mist)] rounded-sm px-4 py-3 bg-[var(--surface-soft)]"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-[var(--ink)]/40">0{s.num}</span>
+                    <span className="font-mono text-xs text-[var(--ink-faint)]">0{s.num}</span>
                     <span className="text-sm text-[var(--ink)]">{s.label}</span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -118,10 +122,10 @@ function AdminDashboard() {
             </div>
           </section>
 
-          <section className="bg-white/60 border border-[var(--mist)] rounded-sm p-6">
+          <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
             <h2 className="font-display text-xl text-[var(--ink)] mb-4">Shortlist</h2>
             {results.length === 0 ? (
-              <p className="text-sm text-[var(--ink)]/50 italic">
+              <p className="text-sm text-[var(--ink-muted)] italic">
                 No candidates shortlisted yet — run the pipeline stages above.
               </p>
             ) : (
@@ -129,16 +133,16 @@ function AdminDashboard() {
                 {results.map((c) => (
                   <div
                     key={c.final_rank}
-                    className="relative border border-[var(--mist)] rounded-sm p-4 bg-white/50"
+                    className="relative border border-[var(--mist)] rounded-sm p-4 bg-[var(--surface)]"
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-medium text-[var(--ink)]">{c.name}</p>
-                        <p className="text-sm text-[var(--ink)]/60 mt-1">{c.stage3_reasoning}</p>
+                        <p className="text-sm text-[var(--ink-muted)] mt-1">{c.stage3_reasoning}</p>
                       </div>
                       <div className="text-right shrink-0 ml-4">
                         <p className="font-mono text-lg text-[var(--ochre)]">#{c.final_rank}</p>
-                        <p className="font-mono text-xs text-[var(--ink)]/50">
+                        <p className="font-mono text-xs text-[var(--ink-muted)]">
                           {c.final_score.toFixed(1)}
                         </p>
                       </div>

@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { evaluateCandidate } from "@/lib/evaluator";
-
-const SCORE_THRESHOLD = 60;
+import { getPipelineConfig } from "@/lib/pipelineConfig";
+import { buildCandidateText } from "@/lib/candidateText";
 
 export async function POST() {
+  const config = await getPipelineConfig();
   const { data: candidates, error } = await supabase
     .from("candidates")
-    .select("id, skills")
+    .select("id, skills,resume_text")
     .eq("stage2_status", "passed")
     .eq("stage3_status", "pending");
 
@@ -19,10 +20,11 @@ export async function POST() {
   let rejectedCount = 0;
   let failedCount = 0;
 
-  for (const candidate of candidates) {
+ for (const candidate of candidates) {
     try {
-      const { score, reasoning } = await evaluateCandidate(candidate.skills);
-      const passed = score >= SCORE_THRESHOLD;
+      const candidateText = buildCandidateText(candidate.skills, candidate.resume_text);  // ← ADD THIS LINE
+      const { score, reasoning } = await evaluateCandidate(candidateText);                // ← CHANGE THIS LINE
+      const passed = score >= config.score_threshold;
 
       const { error: updateError } = await supabase
         .from("candidates")

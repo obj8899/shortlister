@@ -25,7 +25,7 @@ export default function AdminLogin() {
     <main className="min-h-screen bg-[var(--paper)] flex items-center justify-center px-6">
       <form
         onSubmit={handleLogin}
-        className="max-w-sm w-full bg-white/60 border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-4"
+        className="max-w-sm w-full bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-4"
       >
         <h1 className="font-display text-2xl text-[var(--ink)] italic">Admin login</h1>
         <input

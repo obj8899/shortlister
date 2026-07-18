@@ -25,7 +25,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   if (checking) {
     return (
       <main className="min-h-screen bg-[var(--paper)] flex items-center justify-center">
-        <p className="text-[var(--ink)]/50 font-mono text-sm">Checking session…</p>
+        <p className="text-[var(--ink-muted)] font-mono text-sm">Checking session…</p>
       </main>
     );
   }

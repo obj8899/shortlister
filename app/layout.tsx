@@ -30,8 +30,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>   
       <body className={`${newsreader.variable} ${workSans.variable} ${spaceMono.variable} antialiased`}>
+        <script
+  dangerouslySetInnerHTML={{
+    __html: `if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');`,
+  }}
+/>
         {children}
       </body>
     </html>

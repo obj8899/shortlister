@@ -40,16 +40,16 @@ export default function StudentForm() {
   const fieldClass =
     "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] placeholder:text-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-shadow";
   const labelClass =
-    "block text-xs font-mono uppercase tracking-wider text-[var(--ink)]/60 mb-1.5";
+    "block text-xs font-mono uppercase tracking-wider text-[var(--ink-muted)] mb-1.5";
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="max-w-md w-full bg-white/60 border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-5 shadow-sm"
+      className="max-w-md w-full bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-5 shadow-sm"
     >
       <div>
         <h2 className="font-display text-2xl text-[var(--ink)] mb-1">Candidate entry</h2>
-        <p className="text-sm text-[var(--ink)]/60">Submit your details for review.</p>
+        <p className="text-sm text-[var(--ink-muted)]">Submit your details for review.</p>
       </div>
 
       <div>

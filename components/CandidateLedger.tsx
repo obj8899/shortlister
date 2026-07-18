@@ -25,7 +25,7 @@ function StatusPill({ status }: { status: string }) {
       ? "text-[var(--ledger)] border-[var(--ledger)]"
       : status === "rejected"
       ? "text-[var(--clay)] border-[var(--clay)]"
-      : "text-[var(--ink)]/40 border-[var(--mist)]";
+      : "text-[var(--ink-faint)] border-[var(--mist)]";
   return (
     <span className={`text-[10px] font-mono uppercase tracking-wide border rounded-sm px-1.5 py-0.5 ${color}`}>
       {status}
@@ -51,23 +51,23 @@ export default function CandidateLedger() {
   }, []);
 
   return (
-    <section className="bg-white/60 border border-[var(--mist)] rounded-sm p-6">
+    <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-display text-xl text-[var(--ink)]">Full ledger</h2>
         <button
           onClick={fetchLedger}
-          className="text-xs font-mono uppercase tracking-wide text-[var(--ink)]/50 hover:text-[var(--ink)]"
+          className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--ink)]"
         >
           Refresh
         </button>
       </div>
 
       {loading ? (
-        <p className="text-sm text-[var(--ink)]/50 italic">Loading…</p>
+        <p className="text-sm text-[var(--ink-muted)] italic">Loading…</p>
       ) : (
         <div className="flex flex-col gap-2">
           {candidates.map((c) => (
-            <div key={c.id} className="border border-[var(--mist)] rounded-sm bg-white/40">
+            <div key={c.id} className="border border-[var(--mist)] rounded-sm bg-[var(--surface-soft)]">
               <button
                 onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
                 className="w-full flex items-center justify-between px-4 py-3 text-left"
@@ -92,7 +92,7 @@ export default function CandidateLedger() {
 
               {expandedId === c.id && (
                 <div className="px-4 pb-4 pt-1 border-t border-[var(--mist)] text-sm flex flex-col gap-2">
-                  <p className="text-[var(--ink)]/60">
+                  <p className="text-[var(--ink-muted)]">
                     <span className="font-mono text-xs uppercase">Skills:</span> {c.skills}
                   </p>
                   {c.flagged && (
@@ -100,18 +100,18 @@ export default function CandidateLedger() {
                       <span className="font-mono text-xs uppercase">Authenticity flag:</span> {c.flag_reason}
                     </p>
                   )}
-                  <p className="text-[var(--ink)]/70">
+                  <p className="text-[var(--ink-muted)]">
                     <span className="font-mono text-xs uppercase">Stage 1:</span>{" "}
                     {c.stage1_reason || "Passed eligibility rules"}
                   </p>
                   {c.similarity_score !== null && (
-                    <p className="text-[var(--ink)]/70">
+                    <p className="text-[var(--ink-muted)]">
                       <span className="font-mono text-xs uppercase">Stage 2 similarity:</span>{" "}
                       {(c.similarity_score * 100).toFixed(1)}%
                     </p>
                   )}
                   {c.stage3_reasoning && (
-                    <p className="text-[var(--ink)]/70">
+                    <p className="text-[var(--ink-muted)]">
                       <span className="font-mono text-xs uppercase">Stage 3:</span> {c.stage3_reasoning}{" "}
                       ({c.stage3_score}/100)
                     </p>

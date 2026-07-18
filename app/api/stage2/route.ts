@@ -2,22 +2,21 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { generateEmbedding } from "@/lib/embeddings";
 import { cosineSimilarity } from "@/lib/similarity";
-import { TARGET_PROFILE_TEXT } from "@/lib/targetProfile";
-
-const SIMILARITY_THRESHOLD = 0.7;
+import { getPipelineConfig } from "@/lib/pipelineConfig";
+import { buildCandidateText } from "@/lib/candidateText";
 
 export async function POST() {
+  const config = await getPipelineConfig();
+
   const { data: candidates, error } = await supabase
     .from("candidates")
-    .select("id, skills")
+    .select("id, skills, resume_text")
     .eq("stage1_status", "passed")
     .eq("stage2_status", "pending");
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const targetEmbedding = await generateEmbedding(TARGET_PROFILE_TEXT);
+  const targetEmbedding = await generateEmbedding(config.target_profile);
 
   let passedCount = 0;
   let rejectedCount = 0;
@@ -25,9 +24,10 @@ export async function POST() {
 
   for (const candidate of candidates) {
     try {
-      const candidateEmbedding = await generateEmbedding(candidate.skills);
+      const candidateText = buildCandidateText(candidate.skills, candidate.resume_text);
+const candidateEmbedding = await generateEmbedding(candidateText);
       const score = cosineSimilarity(candidateEmbedding, targetEmbedding);
-      const passed = score >= SIMILARITY_THRESHOLD;
+      const passed = score >= config.similarity_threshold;
       const embeddingString = `[${candidateEmbedding.join(",")}]`;
 
       const { error: updateError } = await supabase
@@ -39,15 +39,9 @@ export async function POST() {
         })
         .eq("id", candidate.id);
 
-      if (updateError) {
-        console.error(`Failed to update candidate ${candidate.id}:`, updateError);
-        failedCount++;
-        continue;
-      }
-
+      if (updateError) { failedCount++; continue; }
       passed ? passedCount++ : rejectedCount++;
-    } catch (err) {
-      console.error(`Failed to process candidate ${candidate.id}:`, err);
+    } catch {
       failedCount++;
     }
   }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { normalizeSkills } from "@/lib/normalize";
 import { flagForReview } from "@/lib/authenticity";
-
+import { extractResumeText } from "@/lib/extractResumeText";
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
 
   const normalizedSkills = normalizeSkills(body.skills);
   const authCheck = flagForReview(normalizedSkills);
+  const resumeText = await extractResumeText(body.resumeUrl); 
 
   const { error } = await supabase.from("candidates").insert({
     name: body.name,
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
     linkedin_url: body.linkedinUrl || null,
     flagged: authCheck.flagged,
     flag_reason: authCheck.reason || null,
+    resume_text: resumeText,  
   });
 
   if (error) {

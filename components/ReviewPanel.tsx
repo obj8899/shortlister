@@ -54,11 +54,11 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
   };
 
   return (
-    <section className="bg-white/60 border border-[var(--mist)] rounded-sm p-6">
+    <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
       <h2 className="font-display text-xl text-[var(--ink)] mb-4">Human review</h2>
 
-      <div className="mb-5 border border-[var(--mist)] rounded-sm p-4 bg-white/40">
-        <label className="text-xs font-mono uppercase tracking-wide text-[var(--ink)]/60">
+      <div className="mb-5 border border-[var(--mist)] rounded-sm p-4 bg-[var(--surface-soft)]">
+        <label className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)]">
           Similarity weight: {(similarityWeight * 100).toFixed(0)}% · Evaluation weight:{" "}
           {((1 - similarityWeight) * 100).toFixed(0)}%
         </label>
@@ -84,7 +84,7 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
         {candidates.map((c) => (
           <div
             key={c.id}
-            className="flex items-center justify-between border border-[var(--mist)] rounded-sm px-4 py-3 bg-white/40"
+            className="flex items-center justify-between border border-[var(--mist)] rounded-sm px-4 py-3 bg-[var(--surface-soft)]"
           >
             <div className="flex items-center gap-3">
               <span className="font-mono text-sm text-[var(--ochre)]">#{c.final_rank}</span>
@@ -96,13 +96,13 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
               )}
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs text-[var(--ink)]/50">{c.final_score}</span>
+              <span className="font-mono text-xs text-[var(--ink-muted)]">{c.final_score}</span>
               <button
                 onClick={() => toggleOverride(c.id, c.shortlisted)}
                 className={`text-[10px] font-mono uppercase tracking-wide px-2 py-1 rounded-sm border ${
                   c.shortlisted
                     ? "bg-[var(--ledger)] text-[var(--paper)] border-[var(--ledger)]"
-                    : "text-[var(--ink)]/50 border-[var(--mist)]"
+                    : "text-[var(--ink-muted)] border-[var(--mist)]"
                 }`}
               >
                 {c.shortlisted ? "Shortlisted" : "Not shortlisted"}
