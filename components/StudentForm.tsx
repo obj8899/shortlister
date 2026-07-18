@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { studentFormSchema, StudentFormData } from "@/lib/schemas";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function StudentForm() {
   const {
@@ -17,12 +18,50 @@ export default function StudentForm() {
 
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string>("");
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFileError("");
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      setFileError("Please upload a PDF file.");
+      setResumeFile(null);
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      setFileError("File too large — please compress to under 3MB (try smallpdf.com).");
+      setResumeFile(null);
+      return;
+    }
+    setResumeFile(file);
+  };
 
   const onSubmit = async (data: StudentFormData) => {
+    if (!resumeFile) {
+      setFileError("Please attach your resume PDF.");
+      return;
+    }
+
+    const fileName = `${Date.now()}-${resumeFile.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("resumes")
+      .upload(fileName, resumeFile);
+
+    if (uploadError) {
+      setErrorMessage("Failed to upload resume. Please try again.");
+      setSubmitStatus("error");
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage.from("resumes").getPublicUrl(fileName);
+
     const res = await fetch("/api/candidates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, resumeUrl: publicUrlData.publicUrl }),
     });
 
     if (!res.ok) {
@@ -34,13 +73,14 @@ export default function StudentForm() {
 
     setSubmitStatus("success");
     setErrorMessage("");
+    setResumeFile(null);
     reset();
   };
 
   const fieldClass =
     "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] placeholder:text-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-shadow";
   const labelClass =
-    "block text-xs font-mono uppercase tracking-wider text-[var(--ink-muted)] mb-1.5";
+    "block text-xs font-mono uppercase tracking-wider text-[var(--ink)]/60 mb-1.5";
 
   return (
     <form
@@ -71,9 +111,17 @@ export default function StudentForm() {
       </div>
 
       <div>
-        <label className={labelClass}>Resume URL</label>
-        <input {...register("resumeUrl")} className={fieldClass} placeholder="https://..." />
-        {errors.resumeUrl && <p className="text-[var(--clay)] text-xs mt-1">{errors.resumeUrl.message}</p>}
+        <label className={labelClass}>Resume (PDF, under 3MB)</label>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
+          className={`${fieldClass} file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border-0 file:bg-[var(--ink)] file:text-[var(--paper)] file:text-xs file:cursor-pointer cursor-pointer`}
+        />
+        <p className="text-xs text-[var(--ink-faint)] mt-1">
+          Too large? Compress it free at smallpdf.com first.
+        </p>
+        {fileError && <p className="text-[var(--clay)] text-xs mt-1">{fileError}</p>}
       </div>
 
       <div>
