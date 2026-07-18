@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import StudentForm from "@/components/StudentForm";
+import CandidateLedger from "@/components/CandidateLedger";
 
 interface Stats {
   total: number;
@@ -145,6 +146,7 @@ export default function Home() {
                 </div>
               )}
             </section>
+            <CandidateLedger />
           </div>
         </div>
       </div>
