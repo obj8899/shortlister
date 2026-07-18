@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import StudentForm from "@/components/StudentForm";
 import CandidateLedger from "@/components/CandidateLedger";
+import ReviewPanel from "@/components/ReviewPanel";
 
 interface Stats {
   total: number;
@@ -147,6 +148,7 @@ export default function Home() {
               )}
             </section>
             <CandidateLedger />
+            <ReviewPanel onRerank={async () => { await fetchStats(); await fetchResults(); }} />
           </div>
         </div>
       </div>
