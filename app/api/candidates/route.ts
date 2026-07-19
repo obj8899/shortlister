@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     flagged: authCheck.flagged,
     flag_reason: authCheck.reason || null,
     resume_text: resumeText,  
+    college: body.college,
   });
 
   if (error) {

@@ -7,6 +7,7 @@ import AdminGuard from "@/components/AdminGuard";
 import CandidateLedger from "@/components/CandidateLedger";
 import ReviewPanel from "@/components/ReviewPanel";
 import ThemeToggle from "@/components/ThemeToggle";
+import BiasDashboard from "@/components/BiasDashboard"
 
 interface Stats {
   total: number;
@@ -155,7 +156,7 @@ function AdminDashboard() {
               </div>
             )}
           </section>
-
+          <BiasDashboard />
           <CandidateLedger />
           <ReviewPanel onRerank={async () => { await fetchStats(); await fetchResults(); }} />
         </div>

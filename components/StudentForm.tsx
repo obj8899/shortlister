@@ -109,6 +109,11 @@ export default function StudentForm() {
         <input {...register("skills")} className={fieldClass} placeholder="Python, SQL, React" />
         {errors.skills && <p className="text-[var(--clay)] text-xs mt-1">{errors.skills.message}</p>}
       </div>
+      <div>
+  <label className={labelClass}>College / Institution</label>
+  <input {...register("college")} className={fieldClass} placeholder="Your college name" />
+  {errors.college && <p className="text-[var(--clay)] text-xs mt-1">{errors.college.message}</p>}
+</div>
 
       <div>
         <label className={labelClass}>Resume (PDF, under 3MB)</label>
