@@ -3,6 +3,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { normalizeSkills } from "@/lib/normalize";
 import { flagForReview } from "@/lib/authenticity";
 import { extractResumeText } from "@/lib/extractResumeText";
+import { checkNearDuplicate } from "@/lib/duplicateCheck";
+import { buildCandidateText } from "@/lib/candidateText";
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
@@ -26,6 +28,8 @@ export async function POST(req: NextRequest) {
   const normalizedSkills = normalizeSkills(body.skills);
   const authCheck = flagForReview(normalizedSkills);
   const resumeText = await extractResumeText(body.resumeUrl); 
+  const candidateTextForDupCheck = buildCandidateText(normalizedSkills.join(", "), resumeText);
+const dupCheck = await checkNearDuplicate(candidateTextForDupCheck);
 
   const { error } = await supabase.from("candidates").insert({
     name: body.name,
@@ -37,6 +41,8 @@ export async function POST(req: NextRequest) {
     flag_reason: authCheck.reason || null,
     resume_text: resumeText,  
     college: body.college,
+    duplicate_flag: dupCheck.flagged,
+duplicate_reason: dupCheck.reason || null,
   });
 
   if (error) {

@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { evaluateCandidate } from "@/lib/evaluator";
 import { getPipelineConfig } from "@/lib/pipelineConfig";
 import { buildCandidateText } from "@/lib/candidateText";
+import { logApiCall } from "@/lib/logCost";
 
 export async function POST() {
   const config = await getPipelineConfig();
@@ -23,7 +24,8 @@ export async function POST() {
  for (const candidate of candidates) {
     try {
       const candidateText = buildCandidateText(candidate.skills, candidate.resume_text);  // ← ADD THIS LINE
-      const { score, reasoning } = await evaluateCandidate(candidateText);                // ← CHANGE THIS LINE
+      const { score, reasoning } = await evaluateCandidate(candidateText); 
+      await logApiCall("stage3", "gemini-llm");               // ← CHANGE THIS LINE
       const passed = score >= config.score_threshold;
 
       const { error: updateError } = await supabase

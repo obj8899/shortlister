@@ -9,7 +9,7 @@ export default function AdminSettings() {
   const [saved, setSaved] = useState(false);
 
   const fetchConfig = async () => {
-    const { data } = await supabase.from("pipeline_config").select("*").eq("id", 1).single();
+    const { data } = await supabase.from("pipeline_config").select("*").eq("id", 1).maybeSingle();
     setConfig(data);
   };
 

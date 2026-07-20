@@ -48,9 +48,10 @@ export default function StudentForm() {
     const fileName = `${Date.now()}-${resumeFile.name}`;
     const { error: uploadError } = await supabase.storage
       .from("resumes")
-      .upload(fileName, resumeFile);
+      .upload(fileName, resumeFile, { contentType: "application/pdf" });
 
     if (uploadError) {
+      console.error("Upload error details:", uploadError);
       setErrorMessage("Failed to upload resume. Please try again.");
       setSubmitStatus("error");
       return;

@@ -17,6 +17,8 @@ interface Candidate {
   stage3_reasoning: string | null;
   final_rank: number | null;
   shortlisted: boolean;
+  duplicate_flag: boolean;
+  duplicate_reason: string | null;
 }
 
 function StatusPill({ status }: { status: string }) {
@@ -98,6 +100,11 @@ export default function CandidateLedger() {
                   {c.flagged && (
                     <p className="text-[var(--ochre)]">
                       <span className="font-mono text-xs uppercase">Authenticity flag:</span> {c.flag_reason}
+                    </p>
+                  )}
+                   {c.duplicate_flag && (
+                    <p className="text-[var(--clay)]">
+                      <span className="font-mono text-xs uppercase">Possible duplicate:</span> {c.duplicate_reason}
                     </p>
                   )}
                   <p className="text-[var(--ink-muted)]">

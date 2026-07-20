@@ -8,6 +8,8 @@ import CandidateLedger from "@/components/CandidateLedger";
 import ReviewPanel from "@/components/ReviewPanel";
 import ThemeToggle from "@/components/ThemeToggle";
 import BiasDashboard from "@/components/BiasDashboard"
+import CostTracker from "@/components/CostTracker";
+import AdminSettings from "@/components/AdminSettings";
 
 interface Stats {
   total: number;
@@ -91,6 +93,7 @@ function AdminDashboard() {
 </header>
 
         <div className="flex flex-col gap-8">
+           <AdminSettings />
           <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
             <h2 className="font-display text-xl text-[var(--ink)] mb-1">Pipeline</h2>
             <p className="text-sm text-[var(--ink-muted)] mb-5">
@@ -157,6 +160,7 @@ function AdminDashboard() {
             )}
           </section>
           <BiasDashboard />
+              <CostTracker />
           <CandidateLedger />
           <ReviewPanel onRerank={async () => { await fetchStats(); await fetchResults(); }} />
         </div>

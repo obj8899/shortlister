@@ -4,7 +4,7 @@ import { generateEmbedding } from "@/lib/embeddings";
 import { cosineSimilarity } from "@/lib/similarity";
 import { getPipelineConfig } from "@/lib/pipelineConfig";
 import { buildCandidateText } from "@/lib/candidateText";
-
+import { logApiCall } from "@/lib/logCost";
 export async function POST() {
   const config = await getPipelineConfig();
 
@@ -26,6 +26,8 @@ export async function POST() {
     try {
       const candidateText = buildCandidateText(candidate.skills, candidate.resume_text);
 const candidateEmbedding = await generateEmbedding(candidateText);
+// ...inside the loop, after a successful embedding:
+await logApiCall("stage2", "gemini-embedding");
       const score = cosineSimilarity(candidateEmbedding, targetEmbedding);
       const passed = score >= config.similarity_threshold;
       const embeddingString = `[${candidateEmbedding.join(",")}]`;
