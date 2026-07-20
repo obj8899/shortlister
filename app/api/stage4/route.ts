@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { getPipelineConfig } from "@/lib/pipelineConfig";
+import { sendShortlistEmail } from "@/lib/sendEmail";
 
 export async function POST(req: NextRequest) {
   const config = await getPipelineConfig();
@@ -32,15 +33,26 @@ export async function POST(req: NextRequest) {
 
   for (let i = 0; i < scored.length; i++) {
     const rank = i + 1;
-    const { error: updateError } = await supabase
+    const isShortlisted = rank <= availableSlots;
+
+    const { data: updatedCandidate, error: updateError } = await supabase
       .from("candidates")
       .update({
         final_score: scored[i].finalScore,
         final_rank: rank,
-        shortlisted: rank <= availableSlots,
+        shortlisted: isShortlisted,
       })
-      .eq("id", scored[i].id);
-    if (!updateError) updatedCount++;
+      .eq("id", scored[i].id)
+      .select("name, email, email_sent")
+      .single();
+
+    if (updateError || !updatedCandidate) continue;
+    updatedCount++;
+
+    if (!updatedCandidate.email_sent) {
+      await sendShortlistEmail(updatedCandidate.email, updatedCandidate.name, isShortlisted);
+      await supabase.from("candidates").update({ email_sent: true }).eq("id", scored[i].id);
+    }
   }
 
   return NextResponse.json({ totalRanked: updatedCount }, { status: 200 });
