@@ -21,6 +21,9 @@ export default function AdminLogin() {
     router.push("/admin");
   };
 
+  const fieldClass =
+    "px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-[var(--surface)] text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)]";
+
   return (
     <main className="min-h-screen bg-[var(--paper)] flex items-center justify-center px-6">
       <form
@@ -33,14 +36,14 @@ export default function AdminLogin() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)]"
+          className={fieldClass}
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)]"
+          className={fieldClass}
         />
         {error && <p className="text-[var(--clay)] text-sm">{error}</p>}
         <button

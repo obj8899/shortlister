@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 export async function GET() {
   const { data, error } = await supabase
     .from("candidates")
-    .select("name, final_score, final_rank, stage3_reasoning")
+    .select("id,name, final_score, final_rank, stage3_reasoning")
     .eq("shortlisted", true)
     .order("final_rank", { ascending: true });
 

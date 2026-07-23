@@ -1,18 +1,19 @@
-import { Resend } from "resend";
+import { BrevoClient } from "@getbrevo/brevo";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY!,
+});
 
 export async function sendShortlistEmail(to: string, name: string, shortlisted: boolean) {
   try {
-    await resend.emails.send({
-      from: "Shortlister <onboarding@resend.dev>",
-      to,
-      subject: shortlisted
-        ? "You've been shortlisted!"
-        : "Update on your application",
-      html: shortlisted
+    console.log("Sending from:", process.env.BREVO_SENDER_EMAIL);
+    await brevo.transactionalEmails.sendTransacEmail({
+      subject: shortlisted ? "You've been shortlisted!" : "Update on your application",
+      htmlContent: shortlisted
         ? `<p>Hi ${name},</p><p>Congratulations — you've been shortlisted! We'll be in touch with next steps soon.</p>`
         : `<p>Hi ${name},</p><p>Thank you for applying. After review, we won't be moving forward with your application at this time. We appreciate the effort you put in.</p>`,
+      sender: { name: "Shortlister", email: process.env.BREVO_SENDER_EMAIL! },
+      to: [{ email: to, name }],
     });
   } catch (err) {
     console.error(`Failed to send email to ${to}:`, err);

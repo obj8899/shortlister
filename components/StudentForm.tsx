@@ -79,7 +79,7 @@ export default function StudentForm() {
   };
 
   const fieldClass =
-    "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] placeholder:text-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-shadow";
+    "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-[var(--surface)] text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-shadow";
   const labelClass =
     "block text-xs font-mono uppercase tracking-wider text-[var(--ink)]/60 mb-1.5";
 

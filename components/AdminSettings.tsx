@@ -28,7 +28,7 @@ export default function AdminSettings() {
   if (!config) return null;
 
   const fieldClass =
-    "w-full px-3 py-2 rounded-sm border border-[var(--mist)] bg-white text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)]";
+    "w-full px-3 py-2 rounded-sm border border-[var(--mist)] bg-[var(--surface)] text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)]";
   const labelClass = "block text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] mb-1";
 
   return (
