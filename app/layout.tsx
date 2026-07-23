@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { Jost, Newsreader, Space_Mono, Work_Sans } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
-import { Newsreader, Work_Sans, Space_Mono, Jost } from "next/font/google";
 
 const jost = Jost({
   subsets: ["latin"],
@@ -28,21 +29,22 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shortlister — Candidate Review Ledger",
-  description: "AI-assisted shortlisting pipeline for student candidates.",
+  title: "Shortlister — AI Candidate Review",
+  description: "A staged AI pipeline for shortlisting candidates — explainable, bias-aware, and human-reviewed.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>   
+    <html lang="en" suppressHydrationWarning>
       <body className={`${newsreader.variable} ${workSans.variable} ${spaceMono.variable} ${jost.variable} antialiased`}>
         <script
-  dangerouslySetInnerHTML={{
-    __html: `if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');`,
-  }}
-/>
+          dangerouslySetInnerHTML={{
+            __html: "if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');",
+          }}
+        />
+        <Toaster richColors position="top-right" />
         {children}
       </body>
     </html>

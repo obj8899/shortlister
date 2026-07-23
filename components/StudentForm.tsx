@@ -1,8 +1,10 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import SkillTagInput from "@/components/SkillTagInput";
 import { studentFormSchema, StudentFormData } from "@/lib/schemas";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -10,19 +12,20 @@ export default function StudentForm() {
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
   });
 
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const skillsValue = useWatch({ control, name: "skills" }) || "";
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string>("");
+  const [fileError, setFileError] = useState("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     setFileError("");
     if (!file) return;
 
@@ -45,35 +48,31 @@ export default function StudentForm() {
       return;
     }
 
-    const fileName = `${Date.now()}-${resumeFile.name}`;
+    const fileName = `${crypto.randomUUID()}-${resumeFile.name}`;
     const { error: uploadError } = await supabase.storage
       .from("resumes")
       .upload(fileName, resumeFile, { contentType: "application/pdf" });
 
     if (uploadError) {
       console.error("Upload error details:", uploadError);
-      setErrorMessage("Failed to upload resume. Please try again.");
-      setSubmitStatus("error");
+      toast.error("Failed to upload resume. Please try again.");
       return;
     }
 
     const { data: publicUrlData } = supabase.storage.from("resumes").getPublicUrl(fileName);
-
-    const res = await fetch("/api/candidates", {
+    const response = await fetch("/api/candidates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...data, resumeUrl: publicUrlData.publicUrl }),
     });
 
-    if (!res.ok) {
-      const result = await res.json();
-      setErrorMessage(result.error || "Something went wrong. Please try again.");
-      setSubmitStatus("error");
+    if (!response.ok) {
+      const result = await response.json();
+      toast.error(result.error || "Something went wrong. Please try again.");
       return;
     }
 
-    setSubmitStatus("success");
-    setErrorMessage("");
+    toast.success("Entry recorded successfully!");
     setResumeFile(null);
     reset();
   };
@@ -84,10 +83,7 @@ export default function StudentForm() {
     "block text-xs font-mono uppercase tracking-wider text-[var(--ink)]/60 mb-1.5";
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-md w-full bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-5 shadow-sm"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-md w-full bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-5 shadow-sm">
       <div>
         <h2 className="font-display text-2xl text-[var(--ink)] mb-1">Candidate entry</h2>
         <p className="text-sm text-[var(--ink-muted)]">Submit your details for review.</p>
@@ -106,15 +102,16 @@ export default function StudentForm() {
       </div>
 
       <div>
-        <label className={labelClass}>Skills (comma separated)</label>
-        <input {...register("skills")} className={fieldClass} placeholder="Python, SQL, React" />
+        <label className={labelClass}>Skills</label>
+        <SkillTagInput value={skillsValue} onChange={(value) => setValue("skills", value, { shouldValidate: true })} />
         {errors.skills && <p className="text-[var(--clay)] text-xs mt-1">{errors.skills.message}</p>}
       </div>
+
       <div>
-  <label className={labelClass}>College / Institution</label>
-  <input {...register("college")} className={fieldClass} placeholder="Your college name" />
-  {errors.college && <p className="text-[var(--clay)] text-xs mt-1">{errors.college.message}</p>}
-</div>
+        <label className={labelClass}>College / Institution</label>
+        <input {...register("college")} className={fieldClass} placeholder="Your college name" />
+        {errors.college && <p className="text-[var(--clay)] text-xs mt-1">{errors.college.message}</p>}
+      </div>
 
       <div>
         <label className={labelClass}>Resume (PDF, under 3MB)</label>
@@ -124,9 +121,7 @@ export default function StudentForm() {
           onChange={handleFileChange}
           className={`${fieldClass} file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border-0 file:bg-[var(--ink)] file:text-[var(--paper)] file:text-xs file:cursor-pointer cursor-pointer`}
         />
-        <p className="text-xs text-[var(--ink-faint)] mt-1">
-          Too large? Compress it free at smallpdf.com first.
-        </p>
+        <p className="text-xs text-[var(--ink-faint)] mt-1">Too large? Compress it free at smallpdf.com first.</p>
         {fileError && <p className="text-[var(--clay)] text-xs mt-1">{fileError}</p>}
       </div>
 
@@ -136,20 +131,9 @@ export default function StudentForm() {
         {errors.linkedinUrl && <p className="text-[var(--clay)] text-xs mt-1">{errors.linkedinUrl.message}</p>}
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] transition-colors disabled:opacity-50"
-      >
+      <button type="submit" disabled={isSubmitting} className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] transition-colors disabled:opacity-50">
         {isSubmitting ? "Submitting…" : "Submit entry"}
       </button>
-
-      {submitStatus === "success" && (
-        <p className="text-[var(--ledger)] text-sm font-mono">✓ Entry recorded successfully.</p>
-      )}
-      {submitStatus === "error" && (
-        <p className="text-[var(--clay)] text-sm font-mono">{errorMessage}</p>
-      )}
     </form>
   );
 }

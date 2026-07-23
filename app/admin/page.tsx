@@ -13,6 +13,8 @@ import BiasDashboard from "@/components/BiasDashboard";
 import CostTracker from "@/components/CostTracker";
 import AdminSettings from "@/components/AdminSettings";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import Skeleton from "@/components/Skeleton";
 
 interface Stats {
   total: number;
@@ -39,6 +41,7 @@ function AdminDashboard() {
   const [tab, setTab] = useState("overview");
   const [stats, setStats] = useState<Stats | null>(null);
   const [results, setResults] = useState<ShortlistedCandidate[]>([]);
+  const [resultsLoading, setResultsLoading] = useState(true);
   const [runningStage, setRunningStage] = useState<number | null>(null);
   const router = useRouter();
 
@@ -50,6 +53,7 @@ function AdminDashboard() {
     const res = await fetch("/api/results");
     const data = await res.json();
     setResults(data.candidates || []);
+    setResultsLoading(false);
   };
 
   useEffect(() => {
@@ -71,10 +75,18 @@ function AdminDashboard() {
   };
 
   const handleResetAll = async () => {
-    if (!window.confirm("This will reset ALL candidates back to pending across every stage. This cannot be undone. Continue?")) return;
-    await fetch("/api/reset", { method: "POST" });
-    await fetchStats();
-    await fetchResults();
+    toast("Reset all candidates?", {
+      description: "This will reset every candidate back to pending. This cannot be undone.",
+      action: {
+        label: "Reset",
+        onClick: async () => {
+          await fetch("/api/reset", { method: "POST" });
+          await fetchStats();
+          await fetchResults();
+          toast.success("All candidates reset.");
+        },
+      },
+    });
   };
 
   const stages = [
@@ -134,7 +146,13 @@ function AdminDashboard() {
 
                   <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
                     <h2 className="font-display text-xl text-[var(--ink)] mb-4">Shortlist</h2>
-                    {results.length === 0 ? (
+                    {resultsLoading ? (
+                      <div className="flex flex-col gap-3">
+                        {[...Array(2)].map((_, index) => (
+                          <Skeleton key={index} className="h-20 w-full" />
+                        ))}
+                      </div>
+                    ) : results.length === 0 ? (
                       <p className="text-sm text-[var(--ink-muted)] italic">No candidates shortlisted yet — run the pipeline stages above.</p>
                     ) : (
                       <div className="flex flex-col gap-3">
@@ -192,6 +210,10 @@ function AdminDashboard() {
 }
 
 export default function AdminPage() {
+  useEffect(() => {
+    document.title = "Admin — Shortlister";
+  }, []);
+
   return (
     <AdminGuard>
       <AdminDashboard />

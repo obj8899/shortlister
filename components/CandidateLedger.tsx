@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FileText, X } from "lucide-react";
+import Skeleton from "@/components/Skeleton";
 
 interface Candidate {
   id: string;
   name: string;
   skills: string;
+  resume_url: string;
   flagged: boolean;
   flag_reason: string | null;
   stage1_status: string;
@@ -26,8 +29,9 @@ function StatusPill({ status }: { status: string }) {
     status === "passed"
       ? "text-[var(--ledger)] border-[var(--ledger)]"
       : status === "rejected"
-      ? "text-[var(--clay)] border-[var(--clay)]"
-      : "text-[var(--ink-faint)] border-[var(--mist)]";
+        ? "text-[var(--clay)] border-[var(--clay)]"
+        : "text-[var(--ink-faint)] border-[var(--mist)]";
+
   return (
     <span className={`text-[10px] font-mono uppercase tracking-wide border rounded-sm px-1.5 py-0.5 ${color}`}>
       {status}
@@ -39,11 +43,12 @@ export default function CandidateLedger() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const fetchLedger = async () => {
     setLoading(true);
-    const res = await fetch("/api/ledger");
-    const data = await res.json();
+    const response = await fetch("/api/ledger");
+    const data = await response.json();
     setCandidates(data.candidates || []);
     setLoading(false);
   };
@@ -56,77 +61,97 @@ export default function CandidateLedger() {
     <section className="bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-display text-xl text-[var(--ink)]">Full ledger</h2>
-        <button
-          onClick={fetchLedger}
-          className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--ink)]"
-        >
+        <button onClick={fetchLedger} className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--ink)]">
           Refresh
         </button>
       </div>
 
       {loading ? (
-        <p className="text-sm text-[var(--ink-muted)] italic">Loading…</p>
+        <div className="flex flex-col gap-2">
+          {[...Array(4)].map((_, index) => (
+            <Skeleton key={index} className="h-14 w-full" />
+          ))}
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {candidates.map((c) => (
-            <div key={c.id} className="border border-[var(--mist)] rounded-sm bg-[var(--surface-soft)]">
+          {candidates.map((candidate) => (
+            <div key={candidate.id} className="border border-[var(--mist)] rounded-sm bg-[var(--surface-soft)]">
               <button
-                onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
+                onClick={() => setExpandedId(expandedId === candidate.id ? null : candidate.id)}
                 className="w-full flex items-center justify-between px-4 py-3 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-[var(--ink)]">{c.name}</span>
-                  {c.flagged && (
-                    <span className="text-[10px] font-mono uppercase text-[var(--ochre)]">flagged</span>
-                  )}
+                  <span className="text-sm text-[var(--ink)]">{candidate.name}</span>
+                  {candidate.flagged && <span className="text-[10px] font-mono uppercase text-[var(--ochre)]">flagged</span>}
                 </div>
                 <div className="flex items-center gap-2">
-                  <StatusPill status={c.stage1_status} />
-                  <StatusPill status={c.stage2_status} />
-                  <StatusPill status={c.stage3_status} />
-                  {c.shortlisted && (
+                  <StatusPill status={candidate.stage1_status} />
+                  <StatusPill status={candidate.stage2_status} />
+                  <StatusPill status={candidate.stage3_status} />
+                  {candidate.shortlisted && (
                     <span className="text-[10px] font-mono uppercase text-[var(--paper)] bg-[var(--ledger)] rounded-sm px-1.5 py-0.5">
-                      #{c.final_rank}
+                      #{candidate.final_rank}
                     </span>
                   )}
                 </div>
               </button>
 
-              {expandedId === c.id && (
+              {expandedId === candidate.id && (
                 <div className="px-4 pb-4 pt-1 border-t border-[var(--mist)] text-sm flex flex-col gap-2">
                   <p className="text-[var(--ink-muted)]">
-                    <span className="font-mono text-xs uppercase">Skills:</span> {c.skills}
+                    <span className="font-mono text-xs uppercase">Skills:</span> {candidate.skills}
                   </p>
-                  {c.flagged && (
+                  <button
+                    type="button"
+                    onClick={() => setPreviewUrl(candidate.resume_url)}
+                    className="flex w-fit items-center gap-1.5 font-mono text-xs uppercase text-[var(--ledger)] hover:underline"
+                  >
+                    <FileText size={13} /> View resume
+                  </button>
+                  {candidate.flagged && (
                     <p className="text-[var(--ochre)]">
-                      <span className="font-mono text-xs uppercase">Authenticity flag:</span> {c.flag_reason}
+                      <span className="font-mono text-xs uppercase">Authenticity flag:</span> {candidate.flag_reason}
                     </p>
                   )}
-                   {c.duplicate_flag && (
+                  {candidate.duplicate_flag && (
                     <p className="text-[var(--clay)]">
-                      <span className="font-mono text-xs uppercase">Possible duplicate:</span> {c.duplicate_reason}
+                      <span className="font-mono text-xs uppercase">Possible duplicate:</span> {candidate.duplicate_reason}
                     </p>
                   )}
                   <p className="text-[var(--ink-muted)]">
                     <span className="font-mono text-xs uppercase">Stage 1:</span>{" "}
-                    {c.stage1_reason || "Passed eligibility rules"}
+                    {candidate.stage1_reason || "Passed eligibility rules"}
                   </p>
-                  {c.similarity_score !== null && (
+                  {candidate.similarity_score !== null && (
                     <p className="text-[var(--ink-muted)]">
                       <span className="font-mono text-xs uppercase">Stage 2 similarity:</span>{" "}
-                      {(c.similarity_score * 100).toFixed(1)}%
+                      {(candidate.similarity_score * 100).toFixed(1)}%
                     </p>
                   )}
-                  {c.stage3_reasoning && (
+                  {candidate.stage3_reasoning && (
                     <p className="text-[var(--ink-muted)]">
-                      <span className="font-mono text-xs uppercase">Stage 3:</span> {c.stage3_reasoning}{" "}
-                      ({c.stage3_score}/100)
+                      <span className="font-mono text-xs uppercase">Stage 3:</span> {candidate.stage3_reasoning}{" "}
+                      ({candidate.stage3_score}/100)
                     </p>
                   )}
                 </div>
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {previewUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6" onClick={() => setPreviewUrl(null)}>
+          <div className="flex h-[85vh] w-full max-w-3xl flex-col rounded-sm bg-[var(--surface)]" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-[var(--mist)] px-4 py-3">
+              <span className="font-mono text-sm uppercase text-[var(--ink-muted)]">Resume preview</span>
+              <button type="button" onClick={() => setPreviewUrl(null)} className="text-[var(--ink-muted)] hover:text-[var(--clay)]" aria-label="Close resume preview">
+                <X size={18} />
+              </button>
+            </div>
+            <iframe src={previewUrl} className="w-full flex-1" title="Resume preview" />
+          </div>
         </div>
       )}
     </section>

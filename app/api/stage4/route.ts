@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     updatedCount++;
 
     if (!updatedCandidate.email_sent) {
-      await sendShortlistEmail(updatedCandidate.email, updatedCandidate.name, isShortlisted);
+      await sendShortlistEmail(updatedCandidate.email, updatedCandidate.name, isShortlisted, config.role_name);
       await supabase.from("candidates").update({ email_sent: true }).eq("id", scored[i].id);
     }
   }

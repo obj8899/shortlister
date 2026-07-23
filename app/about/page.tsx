@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { motion, type Variants } from "framer-motion";
 import { ArrowLeft, BriefcaseBusiness, Code2, GraduationCap } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -12,6 +13,10 @@ const item: Variants = {
 };
 
 export default function AboutPage() {
+  useEffect(() => {
+    document.title = "About — Shortlister";
+  }, []);
+
   return (
     <main className="min-h-screen bg-[var(--paper)] px-6 py-14">
       <div className="mx-auto max-w-2xl">

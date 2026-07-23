@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 
 export interface PipelineConfig {
+  role_name: string;
   required_skills: string;
   min_skill_count: number;
   target_profile: string;
@@ -15,6 +16,7 @@ export async function getPipelineConfig(): Promise<PipelineConfig> {
   const { data } = await supabase.from("pipeline_config").select("*").eq("id", 1).single();
   return (
     data ?? {
+      role_name: "this role",
       required_skills: "python,sql",
       min_skill_count: 2,
       target_profile: "Experienced in Python, SQL, and data analysis.",
