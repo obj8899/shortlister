@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import SkillTagInput from "@/components/SkillTagInput";
 import { studentFormSchema, StudentFormData } from "@/lib/schemas";
 import { supabase } from "@/lib/supabaseClient";
@@ -78,7 +79,7 @@ export default function StudentForm() {
   };
 
   const fieldClass =
-    "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-[var(--surface)] text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-shadow";
+    "w-full px-3 py-2.5 rounded-sm border border-[var(--mist)] bg-[var(--surface)] text-[var(--ink)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] transition-all duration-200";
   const labelClass =
     "block text-xs font-mono uppercase tracking-wider text-[var(--ink)]/60 mb-1.5";
 
@@ -91,47 +92,77 @@ export default function StudentForm() {
 
       <div>
         <label className={labelClass}>Name</label>
-        <input {...register("name")} className={fieldClass} />
+        <motion.div
+          animate={errors.name ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <input {...register("name")} className={fieldClass} />
+        </motion.div>
         {errors.name && <p className="text-[var(--clay)] text-xs mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
         <label className={labelClass}>Email</label>
-        <input {...register("email")} className={fieldClass} />
+        <motion.div
+          animate={errors.email ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <input {...register("email")} className={fieldClass} />
+        </motion.div>
         {errors.email && <p className="text-[var(--clay)] text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
         <label className={labelClass}>Skills</label>
-        <SkillTagInput value={skillsValue} onChange={(value) => setValue("skills", value, { shouldValidate: true })} />
+        <motion.div
+          animate={errors.skills ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <SkillTagInput value={skillsValue} onChange={(value) => setValue("skills", value, { shouldValidate: true })} />
+        </motion.div>
         {errors.skills && <p className="text-[var(--clay)] text-xs mt-1">{errors.skills.message}</p>}
       </div>
 
       <div>
         <label className={labelClass}>College / Institution</label>
-        <input {...register("college")} className={fieldClass} placeholder="Your college name" />
+        <motion.div
+          animate={errors.college ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <input {...register("college")} className={fieldClass} placeholder="Your college name" />
+        </motion.div>
         {errors.college && <p className="text-[var(--clay)] text-xs mt-1">{errors.college.message}</p>}
       </div>
 
       <div>
         <label className={labelClass}>Resume (PDF, under 3MB)</label>
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          className={`${fieldClass} file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border-0 file:bg-[var(--ink)] file:text-[var(--paper)] file:text-xs file:cursor-pointer cursor-pointer`}
-        />
+        <motion.div
+          animate={fileError ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className={`${fieldClass} file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border-0 file:bg-[var(--ink)] file:text-[var(--paper)] file:text-xs file:cursor-pointer cursor-pointer`}
+          />
+        </motion.div>
         <p className="text-xs text-[var(--ink-faint)] mt-1">Too large? Compress it free at smallpdf.com first.</p>
         {fileError && <p className="text-[var(--clay)] text-xs mt-1">{fileError}</p>}
       </div>
 
       <div>
         <label className={labelClass}>LinkedIn URL (optional)</label>
-        <input {...register("linkedinUrl")} className={fieldClass} placeholder="https://linkedin.com/in/..." />
+        <motion.div
+          animate={errors.linkedinUrl ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <input {...register("linkedinUrl")} className={fieldClass} placeholder="https://linkedin.com/in/..." />
+        </motion.div>
         {errors.linkedinUrl && <p className="text-[var(--clay)] text-xs mt-1">{errors.linkedinUrl.message}</p>}
       </div>
 
-      <button type="submit" disabled={isSubmitting} className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] transition-colors disabled:opacity-50">
+      <button type="submit" disabled={isSubmitting} className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] enabled:hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50">
         {isSubmitting ? "Submitting…" : "Submit entry"}
       </button>
     </form>

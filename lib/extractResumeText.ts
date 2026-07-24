@@ -1,3 +1,4 @@
+// @ts-ignore
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 
 export async function extractResumeText(url: string): Promise<string | null> {

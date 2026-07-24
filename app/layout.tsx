@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Jost, Newsreader, Space_Mono, Work_Sans } from "next/font/google";
+import { Fraunces, Space_Mono, Work_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const jost = Jost({
-  subsets: ["latin"],
-  variable: "--font-gill",
-  weight: ["400", "500", "600"],
-});
-
-const newsreader = Newsreader({
+const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
   weight: ["400", "500", "600"],
@@ -38,7 +32,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${newsreader.variable} ${workSans.variable} ${spaceMono.variable} ${jost.variable} antialiased`}>
+      <body className={`${fraunces.variable} ${workSans.variable} ${spaceMono.variable} antialiased`}>
         <script
           dangerouslySetInnerHTML={{
             __html: "if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');",

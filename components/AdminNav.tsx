@@ -1,6 +1,7 @@
 "use client";
 
 import { Settings, Workflow, ListChecks, BarChart3, Users } from "lucide-react";
+import { motion } from "framer-motion";
 
 const tabs = [
   { id: "overview", label: "Overview", icon: Workflow },
@@ -20,14 +21,23 @@ export default function AdminNav({ active, onChange }: { active: string; onChang
           <button
             key={t.id}
             onClick={() => onChange(t.id)}
-            className={`flex items-center gap-2 px-3 py-2.5 rounded-sm text-sm whitespace-nowrap transition-colors ${
+            className={`relative flex items-center gap-2 px-3 py-2.5 rounded-sm text-sm whitespace-nowrap transition-colors outline-none cursor-pointer ${
               isActive
-                ? "bg-[var(--ink)] text-[var(--paper)]"
-                : "text-[var(--ink-muted)] hover:bg-[var(--surface-soft)]"
+                ? "text-[var(--paper)]"
+                : "text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-soft)]/50"
             }`}
           >
-            <Icon size={16} strokeWidth={1.75} />
-            {t.label}
+            {isActive && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute inset-0 bg-[var(--ink)] rounded-sm"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-2">
+              <Icon size={16} strokeWidth={1.75} />
+              {t.label}
+            </span>
           </button>
         );
       })}

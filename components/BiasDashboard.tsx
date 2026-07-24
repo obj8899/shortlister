@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 interface CollegeStats {
   total: number;
@@ -34,7 +35,7 @@ export default function BiasDashboard() {
         <h2 className="font-display text-xl text-[var(--ink)]">Diversity funnel</h2>
         <button
           onClick={fetchBias}
-          className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--ink)]"
+          className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--ink)] enabled:hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
         >
           Refresh
         </button>
@@ -57,9 +58,11 @@ export default function BiasDashboard() {
                   </span>
                 </div>
                 <div className="flex gap-1 h-2 rounded-sm overflow-hidden bg-[var(--mist)]">
-                  <div
+                  <motion.div
                     className="bg-[var(--ledger)]"
-                    style={{ width: `${stats.total > 0 ? (stats.stage1Passed / stats.total) * 100 : 0}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stats.total > 0 ? (stats.stage1Passed / stats.total) * 100 : 0}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                     title={`Stage 1: ${stats.stage1Passed}/${stats.total}`}
                   />
                 </div>

@@ -74,7 +74,7 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
         <button
           onClick={rerunRanking}
           disabled={rerunning}
-          className="mt-3 text-xs font-mono uppercase tracking-wide border border-[var(--ink)] px-3 py-1.5 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors disabled:opacity-40"
+          className="mt-3 text-xs font-mono uppercase tracking-wide border border-[var(--ink)] px-3 py-1.5 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] enabled:hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-40 cursor-pointer"
         >
           {rerunning ? "Re-ranking…" : "Re-run ranking"}
         </button>

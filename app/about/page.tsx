@@ -18,7 +18,12 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[var(--paper)] px-6 py-14">
+    <motion.main
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="min-h-screen bg-[var(--paper)] px-6 py-14"
+    >
       <div className="mx-auto max-w-2xl">
         <div className="mb-10 flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--ink)]">
@@ -31,7 +36,7 @@ export default function AboutPage() {
           <motion.p variants={item} className="mb-2 font-mono text-xs uppercase tracking-widest text-[var(--ochre)]">
             About the creator
           </motion.p>
-          <motion.h1 variants={item} className="font-gill mb-6 text-4xl text-[var(--ink)] md:text-5xl">
+          <motion.h1 variants={item} className="font-display italic mb-6 text-4xl text-[var(--ink)] md:text-5xl">
             Ojass Bhatt
           </motion.h1>
 
@@ -58,6 +63,6 @@ export default function AboutPage() {
           </motion.div>
         </motion.div>
       </div>
-    </main>
+    </motion.main>
   );
 }

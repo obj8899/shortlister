@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import AdminGuard from "@/components/AdminGuard";
 import AdminNav from "@/components/AdminNav";
@@ -31,11 +31,38 @@ interface ShortlistedCandidate {
   stage3_reasoning: string;
 }
 
-const fadeSlide = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
-  exit: { opacity: 0, y: -6, transition: { duration: 0.2 } },
+const fadeSlide: Variants = {
+  hidden: { opacity: 0, y: 10, x: 8 },
+  show: { opacity: 1, y: 0, x: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+  exit: { opacity: 0, y: -6, x: -8, transition: { duration: 0.2 } },
 };
+
+function CountBadge({ count }: { count: number }) {
+  const [prevCount, setPrevCount] = useState(count);
+  const [animateTrigger, setAnimateTrigger] = useState(false);
+
+  useEffect(() => {
+    if (count !== prevCount) {
+      setPrevCount(count);
+      setAnimateTrigger(true);
+      const timer = setTimeout(() => setAnimateTrigger(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [count, prevCount]);
+
+  return (
+    <motion.span
+      animate={animateTrigger ? {
+        scale: [1, 1.25, 1],
+        backgroundColor: ["rgba(217, 154, 61, 0)", "rgba(217, 154, 61, 0.25)", "rgba(217, 154, 61, 0)"],
+      } : {}}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+      className="font-mono text-sm text-[var(--ledger)] px-1 rounded-sm inline-block"
+    >
+      {count}
+    </motion.span>
+  );
+}
 
 function AdminDashboard() {
   const [tab, setTab] = useState("overview");
@@ -97,17 +124,22 @@ function AdminDashboard() {
   ];
 
   return (
-    <main className="min-h-screen bg-[var(--paper)] px-6 py-10">
+    <motion.main
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="min-h-screen bg-[var(--paper)] px-6 py-10"
+    >
       <div className="max-w-6xl mx-auto">
         <header className="mb-8 flex items-start justify-between">
           <div>
             <p className="font-mono text-xs uppercase tracking-widest text-[var(--ochre)] mb-2">Admin dashboard</p>
-            <h1 className="font-gill text-4xl md:text-5xl text-[var(--ink)]">Shortlister</h1>
+            <h1 className="font-display italic text-4xl md:text-5xl text-[var(--ink)]">Shortlister</h1>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button onClick={handleResetAll} className="text-xs font-mono uppercase tracking-wide text-[var(--clay)] hover:text-[var(--paper)] hover:bg-[var(--clay)] border border-[var(--clay)] px-3 py-1.5 rounded-sm transition-colors">Reset all</button>
-            <button onClick={handleLogout} className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--clay)] border border-[var(--mist)] px-3 py-1.5 rounded-sm">Log out</button>
+            <button onClick={handleResetAll} className="text-xs font-mono uppercase tracking-wide text-[var(--clay)] hover:text-[var(--paper)] hover:bg-[var(--clay)] enabled:hover:-translate-y-0.5 border border-[var(--clay)] px-3 py-1.5 rounded-sm transition-all duration-200 cursor-pointer">Reset all</button>
+            <button onClick={handleLogout} className="text-xs font-mono uppercase tracking-wide text-[var(--ink-muted)] hover:text-[var(--clay)] enabled:hover:-translate-y-0.5 border border-[var(--mist)] px-3 py-1.5 rounded-sm transition-all duration-200 cursor-pointer">Log out</button>
           </div>
         </header>
 
@@ -129,11 +161,11 @@ function AdminDashboard() {
                             <span className="text-sm text-[var(--ink)]">{s.label}</span>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="font-mono text-sm text-[var(--ledger)]">{s.count ?? 0} passed</span>
+                            <span className="font-mono text-sm text-[var(--ledger)]"><CountBadge count={s.count ?? 0} /> passed</span>
                             <button
                               onClick={() => runStage(s.num, s.endpoint)}
                               disabled={runningStage !== null}
-                              className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wide border border-[var(--ink)] px-3 py-1.5 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors disabled:opacity-40"
+                              className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wide border border-[var(--ink)] px-3 py-1.5 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] enabled:hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-40 cursor-pointer"
                             >
                               {runningStage === s.num && <Loader2 size={12} className="animate-spin" />}
                               {runningStage === s.num ? "Running" : "Run"}
@@ -205,7 +237,7 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
-    </main>
+    </motion.main>
   );
 }
 

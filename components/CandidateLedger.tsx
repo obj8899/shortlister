@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FileText, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import Skeleton from "@/components/Skeleton";
 
 interface Candidate {
@@ -75,10 +76,15 @@ export default function CandidateLedger() {
       ) : (
         <div className="flex flex-col gap-2">
           {candidates.map((candidate) => (
-            <div key={candidate.id} className="border border-[var(--mist)] rounded-sm bg-[var(--surface-soft)]">
+            <div
+              key={candidate.id}
+              className={`border border-[var(--mist)] rounded-sm bg-[var(--surface-soft)] transition-all duration-200 ${
+                expandedId !== candidate.id ? "hover:scale-[1.005] hover:opacity-95" : ""
+              }`}
+            >
               <button
                 onClick={() => setExpandedId(expandedId === candidate.id ? null : candidate.id)}
-                className="w-full flex items-center justify-between px-4 py-3 text-left"
+                className="w-full flex items-center justify-between px-4 py-3 text-left cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-[var(--ink)]">{candidate.name}</span>
@@ -96,46 +102,56 @@ export default function CandidateLedger() {
                 </div>
               </button>
 
-              {expandedId === candidate.id && (
-                <div className="px-4 pb-4 pt-1 border-t border-[var(--mist)] text-sm flex flex-col gap-2">
-                  <p className="text-[var(--ink-muted)]">
-                    <span className="font-mono text-xs uppercase">Skills:</span> {candidate.skills}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewUrl(candidate.resume_url)}
-                    className="flex w-fit items-center gap-1.5 font-mono text-xs uppercase text-[var(--ledger)] hover:underline"
+              <AnimatePresence initial={false}>
+                {expandedId === candidate.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
                   >
-                    <FileText size={13} /> View resume
-                  </button>
-                  {candidate.flagged && (
-                    <p className="text-[var(--ochre)]">
-                      <span className="font-mono text-xs uppercase">Authenticity flag:</span> {candidate.flag_reason}
-                    </p>
-                  )}
-                  {candidate.duplicate_flag && (
-                    <p className="text-[var(--clay)]">
-                      <span className="font-mono text-xs uppercase">Possible duplicate:</span> {candidate.duplicate_reason}
-                    </p>
-                  )}
-                  <p className="text-[var(--ink-muted)]">
-                    <span className="font-mono text-xs uppercase">Stage 1:</span>{" "}
-                    {candidate.stage1_reason || "Passed eligibility rules"}
-                  </p>
-                  {candidate.similarity_score !== null && (
-                    <p className="text-[var(--ink-muted)]">
-                      <span className="font-mono text-xs uppercase">Stage 2 similarity:</span>{" "}
-                      {(candidate.similarity_score * 100).toFixed(1)}%
-                    </p>
-                  )}
-                  {candidate.stage3_reasoning && (
-                    <p className="text-[var(--ink-muted)]">
-                      <span className="font-mono text-xs uppercase">Stage 3:</span> {candidate.stage3_reasoning}{" "}
-                      ({candidate.stage3_score}/100)
-                    </p>
-                  )}
-                </div>
-              )}
+                    <div className="px-4 pb-4 pt-1 border-t border-[var(--mist)] text-sm flex flex-col gap-2">
+                      <p className="text-[var(--ink-muted)]">
+                        <span className="font-mono text-xs uppercase">Skills:</span> {candidate.skills}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewUrl(candidate.resume_url)}
+                        className="flex w-fit items-center gap-1.5 font-mono text-xs uppercase text-[var(--ledger)] hover:underline cursor-pointer"
+                      >
+                        <FileText size={13} /> View resume
+                      </button>
+                      {candidate.flagged && (
+                        <p className="text-[var(--ochre)]">
+                          <span className="font-mono text-xs uppercase">Authenticity flag:</span> {candidate.flag_reason}
+                        </p>
+                      )}
+                      {candidate.duplicate_flag && (
+                        <p className="text-[var(--clay)]">
+                          <span className="font-mono text-xs uppercase">Possible duplicate:</span> {candidate.duplicate_reason}
+                        </p>
+                      )}
+                      <p className="text-[var(--ink-muted)]">
+                        <span className="font-mono text-xs uppercase">Stage 1:</span>{" "}
+                        {candidate.stage1_reason || "Passed eligibility rules"}
+                      </p>
+                      {candidate.similarity_score !== null && (
+                        <p className="text-[var(--ink-muted)]">
+                          <span className="font-mono text-xs uppercase">Stage 2 similarity:</span>{" "}
+                          {(candidate.similarity_score * 100).toFixed(1)}%
+                        </p>
+                      )}
+                      {candidate.stage3_reasoning && (
+                        <p className="text-[var(--ink-muted)]">
+                          <span className="font-mono text-xs uppercase">Stage 3:</span> {candidate.stage3_reasoning}{" "}
+                          ({candidate.stage3_score}/100)
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>

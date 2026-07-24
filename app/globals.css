@@ -1,34 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #F7F5F0;
-  --ink: #1F2A37;
-  --ink-muted: #6B7280;
-  --ink-faint: #9CA3AF;
-  --ledger: #3F6652;
-  --ochre: #B8863B;
-  --clay: #8B4A3D;
-  --mist: #D8D3C7;
-  --surface: #FFFFFF;
-  --surface-soft: #FBFAF7;
-  --aurora-1: #D1603D;
-  --aurora-2: #84596B;
-  --aurora-3: #F9EA9A;
-  --aurora-4: #41D3BD;
-  --aurora-5: #1F1300;
+  --paper: #F6F1E4;
+  --ink: #1B2A3D;
+  --ink-muted: #5C6B7D;
+  --ink-faint: #8A94A3;
+  --ledger: #5C7A52;
+  --ochre: #D99A3D;
+  --clay: #B85C3E;
+  --mist: #D8CBB0;
+  --surface: #FDFBF5;
+  --surface-soft: #F3EAD6;
 }
 
 .dark {
-  --paper: #1B1F1A;
-  --ink: #EDE9DF;
-  --ink-muted: #ADA898;
-  --ink-faint: #7C7869;
-  --ledger: #6FA98A;
-  --ochre: #E0B268;
-  --clay: #D98770;
-  --mist: #3A3F37;
-  --surface: #262B23;
-  --surface-soft: #2E3427;
+  --paper: #0E1F33;
+  --ink: #F0E9D8;
+  --ink-muted: #B8C4D6;
+  --ink-faint: #8494A8;
+  --ledger: #7FA06E;
+  --ochre: #E8B463;
+  --clay: #D07A5C;
+  --mist: #2A3B52;
+  --surface: #16293F;
+  --surface-soft: #1C3149;
 }
 
 body {
@@ -108,6 +103,43 @@ body {
   0%, 100% { transform: translate(-50%, 0); }
   50% { transform: translate(-50%, -60px); }
 }
-.font-gill {
-  font-family: 'Gill Sans', 'Gill Sans MT', var(--font-gill), sans-serif;
+
+.hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-rise { animation: fade-rise 0.8s ease-out both; }
+.animate-fade-rise-delay { animation: fade-rise 0.8s ease-out 0.2s both; }
+.animate-fade-rise-delay-2 { animation: fade-rise 0.8s ease-out 0.4s both; }

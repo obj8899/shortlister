@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 import StudentForm from "@/components/StudentForm";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -20,7 +21,12 @@ export default function ApplyPage() {
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--paper)] px-6 py-12">
+    <motion.main
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="flex min-h-screen items-center justify-center bg-[var(--paper)] px-6 py-12"
+    >
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-between">
           <Link
@@ -44,6 +50,6 @@ export default function ApplyPage() {
         </div>
         <StudentForm />
       </div>
-    </main>
+    </motion.main>
   );
 }

@@ -1,96 +1,71 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
-import { ArrowRight, GraduationCap, ShieldCheck } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
-
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
-};
 
 export default function LandingPage() {
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-[var(--paper)]">
-      <div className="aurora-bg pointer-events-none absolute inset-0">
-        <div className="aurora-blob blob-1" />
-        <div className="aurora-blob blob-2" />
-        <div className="aurora-blob blob-3" />
-        <div className="aurora-blob blob-4" />
-      </div>
+    <section
+      className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-black text-white"
+      style={{ fontFamily: "var(--font-body)" }}
+    >
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        src="/hero-video.mp4"
+      />
 
-      <motion.nav
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex items-center justify-between px-6 py-5 sm:px-10"
-      >
-        <span className="font-gill text-lg text-[var(--ink)]">Shortlister</span>
-        <div className="flex items-center gap-4">
-          <Link href="/about" className="text-sm font-medium text-[var(--ink-muted)] transition-colors hover:text-[var(--ink)]">
-            About
+      {/* Dark Overlay */}
+      <div className="hero-video-overlay absolute inset-0 bg-black/30 z-[1] pointer-events-none" />
+
+      {/* Navigation Bar */}
+      <nav className="relative z-10 flex flex-row justify-between items-center px-8 py-6 max-w-6xl mx-auto w-full">
+        <Link
+          href="/"
+          className="font-display italic text-2xl tracking-tight text-white"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Shortlister
+        </Link>
+        <Link href="/about" className="text-sm text-white/70 hover:text-white transition-colors">
+          About
+        </Link>
+      </nav>
+
+      {/* Hero Content */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pt-24 pb-32 max-w-5xl mx-auto w-full">
+        <h1
+          className="animate-fade-rise text-5xl sm:text-7xl md:text-8xl leading-[0.95] tracking-tight text-white font-normal italic"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Every candidate reviewed, <em className="not-italic text-white/60">every decision explained.</em>
+        </h1>
+
+        <p className="animate-fade-rise-delay text-white/70 text-base sm:text-lg max-w-2xl mt-8 leading-relaxed mx-auto">
+          A staged AI pipeline that narrows thousands of candidates into a ranked shortlist — cheaply, explainably, and with a human always able to step in.
+        </p>
+
+        <div className="animate-fade-rise-delay-2 flex flex-wrap items-center justify-center gap-4 mt-12">
+          <Link
+            href="/apply"
+            className="liquid-glass rounded-full px-8 py-4 text-base text-white font-medium hover:scale-[1.03] transition-transform cursor-pointer"
+          >
+            I&apos;m applying
           </Link>
-          <ThemeToggle />
+          <Link
+            href="/admin/login"
+            className="liquid-glass rounded-full px-8 py-4 text-base text-white font-medium hover:scale-[1.03] transition-transform cursor-pointer"
+          >
+            I&apos;m reviewing
+          </Link>
         </div>
-      </motion.nav>
-
-      <div className="relative z-10 flex flex-1 items-center justify-center px-6">
-        <motion.div variants={container} initial="hidden" animate="show" className="w-full max-w-2xl text-center">
-          <motion.p variants={item} className="mb-3 font-mono text-xs uppercase tracking-widest text-[var(--ochre)]">
-            Candidate review system
-          </motion.p>
-          <motion.h1 variants={item} className="mb-4 font-gill text-5xl text-[var(--ink)] md:text-6xl">
-            Shortlister
-          </motion.h1>
-          <motion.p variants={item} className="mx-auto mb-6 max-w-md text-[var(--ink-muted)]">
-            Every candidate reviewed in four stages — eligibility, relevance, depth, and rank — each entry stamped with the reasoning behind its outcome.
-          </motion.p>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <motion.div variants={item}>
-              <Link href="/apply">
-                <motion.div
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="liquid-glass group flex h-full cursor-pointer flex-col items-center rounded-sm p-8 text-center transition-shadow hover:shadow-lg"
-                >
-                  <GraduationCap className="mb-4 text-[var(--ledger)]" size={32} strokeWidth={1.5} />
-                  <h2 className="font-display mb-2 text-xl text-[var(--ink)]">I&apos;m applying</h2>
-                  <p className="mb-4 text-sm text-[var(--ink-muted)]">Submit your details for review.</p>
-                  <span className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wide text-[var(--ledger)]">
-                    Continue
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                  </span>
-                </motion.div>
-              </Link>
-            </motion.div>
-
-            <motion.div variants={item}>
-              <Link href="/admin/login">
-                <motion.div
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="liquid-glass group flex h-full cursor-pointer flex-col items-center rounded-sm p-8 text-center transition-shadow hover:shadow-lg"
-                >
-                  <ShieldCheck className="mb-4 text-[var(--ochre)]" size={32} strokeWidth={1.5} />
-                  <h2 className="font-display mb-2 text-xl text-[var(--ink)]">I&apos;m reviewing</h2>
-                  <p className="mb-4 text-sm text-[var(--ink-muted)]">Access the admin dashboard.</p>
-                  <span className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wide text-[var(--ochre)]">
-                    Continue
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                  </span>
-                </motion.div>
-              </Link>
-            </motion.div>
-          </div>
-        </motion.div>
       </div>
-    </main>
+
+      {/* Empty footer space or self-balanced centering wrapper */}
+      <div className="relative z-10 w-full h-16 pointer-events-none" />
+    </section>
   );
 }

@@ -24,14 +24,15 @@ export default function ThemeToggle() {
     <button
       onClick={toggle}
       aria-label="Toggle dark mode"
-      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
+      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors duration-300 cursor-pointer ${
         dark ? "bg-[var(--ochre)] border-[var(--ochre)]" : "bg-white border-[var(--mist)]"
       }`}
     >
       <Lightbulb
         size={18}
-        className={dark ? "text-[var(--paper)]" : "text-[var(--ochre)]"}
-        fill={dark ? "currentColor" : "none"}
+        className={`transition-all duration-300 ${
+          dark ? "text-[var(--paper)] fill-current" : "text-[var(--ochre)] fill-transparent"
+        }`}
       />
     </button>
   );
