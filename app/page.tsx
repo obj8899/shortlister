@@ -30,9 +30,11 @@ export default function LandingPage() {
         >
           Shortlister
         </Link>
-        <Link href="/about" className="text-sm text-white/70 hover:text-white transition-colors">
+        {/* RECONNECT_ABOUT_START */}
+        <Link href="/about" className="text-sm text-white/70 hover:text-white transition-colors" onClick={(e) => e.preventDefault()}>
           About
         </Link>
+        {/* RECONNECT_ABOUT_END */}
       </nav>
 
       {/* Hero Content */}
