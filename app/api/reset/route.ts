@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
-export async function POST() {
+export async function POST(req: Request) {
+  let roleId: string;
+  try {
+    const body = await req.json();
+    roleId = body?.roleId;
+  } catch (err) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  if (!roleId) {
+    return NextResponse.json({ error: "roleId is required" }, { status: 400 });
+  }
+
   const { error } = await supabase
     .from("candidates")
     .update({
@@ -19,7 +31,7 @@ export async function POST() {
       manual_override: false,
       email_sent: false,
     })
-    .gte("created_at", "1970-01-01");
+    .eq("role_id", roleId);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

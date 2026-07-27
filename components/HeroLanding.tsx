@@ -31,9 +31,9 @@ export default function HeroLanding() {
           Shortlister
         </Link>
         {/* RECONNECT_ABOUT_START */}
-        <Link href="/about" className="text-sm text-white/70 hover:text-white transition-colors" onClick={(e) => e.preventDefault()}>
+        <span className="text-sm text-white/30 cursor-not-allowed select-none">
           About
-        </Link>
+        </span>
         {/* RECONNECT_ABOUT_END */}
       </nav>
 

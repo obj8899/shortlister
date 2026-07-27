@@ -27,12 +27,15 @@ function CountUp({ value, duration = 0.8, prefix = "", suffix = "", decimals = 2
   return <span ref={ref}>{prefix}{Number(value).toFixed(decimals)}{suffix}</span>;
 }
 
-export default function CostTracker() {
+export default function CostTracker({ roleId }: { roleId: string }) {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/cost").then((r) => r.json()).then(setData);
-  }, []);
+    if (!roleId) return;
+    fetch(`/api/cost?roleId=${roleId}`)
+      .then((r) => r.json())
+      .then(setData);
+  }, [roleId]);
 
   if (!data) return null;
 

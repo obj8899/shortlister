@@ -18,7 +18,9 @@ export default function AdminNav({ active, onChange }: { active: string; onChang
         const Icon = t.icon;
         const isActive = active === t.id;
         return (
-          <button
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
             key={t.id}
             onClick={() => onChange(t.id)}
             className={`relative flex items-center gap-2 px-3 py-2.5 rounded-sm text-sm whitespace-nowrap transition-colors outline-none cursor-pointer ${
@@ -38,7 +40,7 @@ export default function AdminNav({ active, onChange }: { active: string; onChang
               <Icon size={16} strokeWidth={1.75} />
               {t.label}
             </span>
-          </button>
+          </motion.button>
         );
       })}
     </nav>

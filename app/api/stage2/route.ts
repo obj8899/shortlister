@@ -2,17 +2,31 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { generateEmbedding } from "@/lib/embeddings";
 import { cosineSimilarity } from "@/lib/similarity";
-import { getPipelineConfig } from "@/lib/pipelineConfig";
+import { getRoleConfig } from "@/lib/pipelineConfig";
 import { buildCandidateText } from "@/lib/candidateText";
 import { logApiCall } from "@/lib/logCost";
-export async function POST() {
-  const config = await getPipelineConfig();
+
+export async function POST(req: Request) {
+  let roleId: string;
+  try {
+    const body = await req.json();
+    roleId = body?.roleId;
+  } catch (err) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  if (!roleId) {
+    return NextResponse.json({ error: "roleId is required" }, { status: 400 });
+  }
+
+  const config = await getRoleConfig(roleId);
 
   const { data: candidates, error } = await supabase
     .from("candidates")
     .select("id, skills, resume_text")
     .eq("stage1_status", "passed")
-    .eq("stage2_status", "pending");
+    .eq("stage2_status", "pending")
+    .eq("role_id", roleId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -25,9 +39,9 @@ export async function POST() {
   for (const candidate of candidates) {
     try {
       const candidateText = buildCandidateText(candidate.skills, candidate.resume_text);
-const candidateEmbedding = await generateEmbedding(candidateText);
-// ...inside the loop, after a successful embedding:
-await logApiCall("stage2", "gemini-embedding");
+      const candidateEmbedding = await generateEmbedding(candidateText);
+      // ...inside the loop, after a successful embedding:
+      await logApiCall("stage2", "gemini-embedding");
       const score = cosineSimilarity(candidateEmbedding, targetEmbedding);
       const passed = score >= config.similarity_threshold;
       const embeddingString = `[${candidateEmbedding.join(",")}]`;
@@ -39,7 +53,8 @@ await logApiCall("stage2", "gemini-embedding");
           similarity_score: score,
           stage2_status: passed ? "passed" : "rejected",
         })
-        .eq("id", candidate.id);
+        .eq("id", candidate.id)
+        .eq("role_id", roleId);
 
       if (updateError) { failedCount++; continue; }
       passed ? passedCount++ : rejectedCount++;

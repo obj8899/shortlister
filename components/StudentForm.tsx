@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -9,7 +9,12 @@ import SkillTagInput from "@/components/SkillTagInput";
 import { studentFormSchema, StudentFormData } from "@/lib/schemas";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function StudentForm() {
+interface StudentFormProps {
+  verifiedEmail?: string;
+  roleId: string;
+}
+
+export default function StudentForm({ verifiedEmail, roleId }: StudentFormProps) {
   const {
     register,
     handleSubmit,
@@ -20,6 +25,12 @@ export default function StudentForm() {
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
   });
+
+  useEffect(() => {
+    if (verifiedEmail) {
+      setValue("email", verifiedEmail, { shouldValidate: true });
+    }
+  }, [verifiedEmail, setValue]);
 
   const skillsValue = useWatch({ control, name: "skills" }) || "";
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -64,7 +75,7 @@ export default function StudentForm() {
     const response = await fetch("/api/candidates", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, resumeUrl: publicUrlData.publicUrl }),
+      body: JSON.stringify({ ...data, roleId, resumeUrl: publicUrlData.publicUrl }),
     });
 
     if (!response.ok) {
@@ -85,9 +96,23 @@ export default function StudentForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-md w-full bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-8 flex flex-col gap-5 shadow-sm">
-      <div>
-        <h2 className="font-display text-2xl text-[var(--ink)] mb-1">Candidate entry</h2>
-        <p className="text-sm text-[var(--ink-muted)]">Submit your details for review.</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="font-display text-2xl text-[var(--ink)] mb-1">Candidate entry</h2>
+          <p className="text-sm text-[var(--ink-muted)]">Submit your details for review.</p>
+        </div>
+        {verifiedEmail && (
+          <button
+            type="button"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.reload();
+            }}
+            className="text-xs font-mono text-[var(--ink-muted)] hover:text-[var(--clay)] transition-colors cursor-pointer mt-1 underline"
+          >
+            Sign out
+          </button>
+        )}
       </div>
 
       <div>
@@ -107,7 +132,11 @@ export default function StudentForm() {
           animate={errors.email ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
-          <input {...register("email")} className={fieldClass} />
+          <input
+            {...register("email")}
+            className={`${fieldClass} ${verifiedEmail ? "opacity-70 bg-[var(--surface-soft)] cursor-not-allowed" : ""}`}
+            readOnly={!!verifiedEmail}
+          />
         </motion.div>
         {errors.email && <p className="text-[var(--clay)] text-xs mt-1">{errors.email.message}</p>}
       </div>
@@ -162,9 +191,15 @@ export default function StudentForm() {
         {errors.linkedinUrl && <p className="text-[var(--clay)] text-xs mt-1">{errors.linkedinUrl.message}</p>}
       </div>
 
-      <button type="submit" disabled={isSubmitting} className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] enabled:hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50">
+      <motion.button
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.97 }}
+        type="submit"
+        disabled={isSubmitting}
+        className="mt-2 bg-[var(--ink)] text-[var(--paper)] rounded-sm py-2.5 font-medium tracking-wide hover:bg-[var(--ledger)] transition-all duration-200 disabled:opacity-50 cursor-pointer"
+      >
         {isSubmitting ? "Submitting…" : "Submit entry"}
-      </button>
+      </motion.button>
     </form>
   );
 }

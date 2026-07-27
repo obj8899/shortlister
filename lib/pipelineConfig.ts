@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 
-export interface PipelineConfig {
+export interface RoleConfig {
+  id: string;
   role_name: string;
   required_skills: string;
   min_skill_count: number;
@@ -10,13 +11,20 @@ export interface PipelineConfig {
   shortlist_size: number;
   similarity_weight: number;
   eval_weight: number;
+  status: string;
 }
 
-export async function getPipelineConfig(): Promise<PipelineConfig> {
-  const { data } = await supabase.from("pipeline_config").select("*").eq("id", 1).single();
+export async function getRoleConfig(roleId: string): Promise<RoleConfig> {
+  const { data } = await supabase
+    .from("roles")
+    .select("*")
+    .eq("id", roleId)
+    .maybeSingle();
+
   return (
     data ?? {
-      role_name: "this role",
+      id: roleId,
+      role_name: "frontend",
       required_skills: "python,sql",
       min_skill_count: 2,
       target_profile: "Experienced in Python, SQL, and data analysis.",
@@ -25,6 +33,21 @@ export async function getPipelineConfig(): Promise<PipelineConfig> {
       shortlist_size: 15,
       similarity_weight: 0.4,
       eval_weight: 0.6,
+      status: "open",
     }
   );
+}
+
+export async function listOpenRoles(): Promise<RoleConfig[]> {
+  const { data, error } = await supabase
+    .from("roles")
+    .select("*")
+    .eq("status", "open")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error listing open roles:", error);
+    return [];
+  }
+  return data || [];
 }

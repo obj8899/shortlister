@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
 // Rough public per-call cost estimates (USD), for illustration
@@ -8,10 +8,18 @@ const COST_PER_CALL = {
 };
 const NAIVE_LLM_COST_PER_CANDIDATE = 0.006; // cost if every candidate got a full LLM pass, no funnel
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const roleId = searchParams.get("roleId");
+
+  if (!roleId) {
+    return NextResponse.json({ error: "roleId query parameter is required" }, { status: 400 });
+  }
+
   const { count: totalCandidates } = await supabase
     .from("candidates")
-    .select("*", { count: "exact", head: true });
+    .select("*", { count: "exact", head: true })
+    .eq("role_id", roleId);
 
   const { data: logs } = await supabase.from("api_cost_log").select("stage, provider");
 

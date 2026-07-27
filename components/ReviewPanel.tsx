@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { playSound } from "@/lib/sound";
 
 interface RankedCandidate {
   id: string;
@@ -11,13 +13,14 @@ interface RankedCandidate {
   manual_override: boolean;
 }
 
-export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
+export default function ReviewPanel({ roleId, onRerank }: { roleId: string; onRerank?: () => void }) {
   const [candidates, setCandidates] = useState<RankedCandidate[]>([]);
   const [similarityWeight, setSimilarityWeight] = useState(0.4);
   const [rerunning, setRerunning] = useState(false);
 
   const fetchRanked = async () => {
-    const res = await fetch("/api/ledger");
+    if (!roleId) return;
+    const res = await fetch(`/api/ledger?roleId=${roleId}`);
     const data = await res.json();
     const ranked = (data.candidates || [])
       .filter((c: any) => c.stage3_status === "passed")
@@ -27,14 +30,16 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
 
   useEffect(() => {
     fetchRanked();
-  }, []);
+  }, [roleId]);
 
   const rerunRanking = async () => {
+    if (!roleId) return;
     setRerunning(true);
     await fetch("/api/stage4", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        roleId,
         similarityWeight,
         evalWeight: 1 - similarityWeight,
       }),
@@ -45,6 +50,7 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
   };
 
   const toggleOverride = async (id: string, current: boolean) => {
+    playSound("thud");
     await fetch("/api/override", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,13 +77,15 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
           onChange={(e) => setSimilarityWeight(parseFloat(e.target.value))}
           className="w-full mt-2 accent-[var(--ledger)]"
         />
-        <button
+        <motion.button
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.97 }}
           onClick={rerunRanking}
           disabled={rerunning}
-          className="mt-3 text-xs font-mono uppercase tracking-wide border border-[var(--ink)] px-3 py-1.5 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] enabled:hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-40 cursor-pointer"
+          className="mt-3 text-xs font-mono uppercase tracking-wide border border-[var(--ink)] px-3 py-1.5 rounded-sm hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-all duration-200 disabled:opacity-40 cursor-pointer"
         >
           {rerunning ? "Re-ranking…" : "Re-run ranking"}
-        </button>
+        </motion.button>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -97,16 +105,18 @@ export default function ReviewPanel({ onRerank }: { onRerank?: () => void }) {
             </div>
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs text-[var(--ink-muted)]">{c.final_score}</span>
-              <button
+              <motion.button
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => toggleOverride(c.id, c.shortlisted)}
-                className={`text-[10px] font-mono uppercase tracking-wide px-2 py-1 rounded-sm border ${
+                className={`text-[10px] font-mono uppercase tracking-wide px-2 py-1 rounded-sm border cursor-pointer ${
                   c.shortlisted
                     ? "bg-[var(--ledger)] text-[var(--paper)] border-[var(--ledger)]"
                     : "text-[var(--ink-muted)] border-[var(--mist)]"
                 }`}
               >
                 {c.shortlisted ? "Shortlisted" : "Not shortlisted"}
-              </button>
+              </motion.button>
             </div>
           </div>
         ))}

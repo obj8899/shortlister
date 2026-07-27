@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
 interface CollegeStats {
@@ -9,16 +9,24 @@ interface CollegeStats {
   shortlisted: number;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const roleId = searchParams.get("roleId");
+
+  if (!roleId) {
+    return NextResponse.json({ error: "roleId query parameter is required" }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from("candidates")
-    .select("college, stage1_status, stage2_status, stage3_status, shortlisted");
+    .select("college, stage1_status, stage2_status, stage3_status, shortlisted")
+    .eq("role_id", roleId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const breakdown: { [key: string]: CollegeStats } = {};
 
-  for (const c of data) {
+  for (const c of data || []) {
     const college = c.college || "Unspecified";
     if (!breakdown[college]) {
       breakdown[college] = { total: 0, stage1Passed: 0, stage2Passed: 0, stage3Passed: 0, shortlisted: 0 };

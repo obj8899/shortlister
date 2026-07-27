@@ -2,26 +2,35 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { motion, type Variants } from "framer-motion";
+import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { ArrowLeft, BriefcaseBusiness, Code2, GraduationCap } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const container: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
+const container: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.15 } } };
 const item: Variants = {
   hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
 };
 
 export default function AboutPage() {
+  const shouldReduceMotion = useReducedMotion();
+
   useEffect(() => {
     document.title = "About — Shortlister";
   }, []);
 
+  const mainInitial = shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 };
+  const mainTransition = shouldReduceMotion ? { duration: 0.1 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any };
+
+  const hoverCard = shouldReduceMotion ? undefined : { y: -4 };
+  const hoverBtn = shouldReduceMotion ? undefined : { y: -2 };
+  const tapBtn = shouldReduceMotion ? undefined : { scale: 0.97 };
+
   return (
     <motion.main
-      initial={{ opacity: 0, y: 12 }}
+      initial={mainInitial}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={mainTransition}
       className="min-h-screen bg-[var(--paper)] px-6 py-14"
     >
       <div className="mx-auto max-w-2xl lg:max-w-5xl">
@@ -32,23 +41,35 @@ export default function AboutPage() {
           <ThemeToggle />
         </div>
 
-        <motion.div variants={container} initial="hidden" animate="show">
-          <motion.p variants={item} className="mb-2 font-mono text-xs uppercase tracking-widest text-[var(--ochre)]">
-            Meet the creators
-          </motion.p>
-          <motion.h1 variants={item} className="font-display italic mb-6 text-4xl text-[var(--ink)] md:text-5xl">
-            Meet the Creators
-          </motion.h1>
+        <div>
+          {/* Header section animates on mount */}
+          <motion.div variants={container} initial={shouldReduceMotion ? "show" : "hidden"} animate="show" className="mb-8">
+            <motion.p variants={item} className="mb-2 font-mono text-xs uppercase tracking-widest text-[var(--ochre)]">
+              Meet the creators
+            </motion.p>
+            <motion.h1 variants={item} className="font-display italic mb-6 text-4xl text-[var(--ink)] md:text-5xl">
+              Meet the Creators
+            </motion.h1>
 
-          <motion.p variants={item} className="mb-8 text-[var(--ink-muted)] leading-relaxed">
-            Shortlister is an end-to-end AI candidate shortlisting platform, built from the ground up — a staged pipeline of rule-based filtering, semantic embeddings, structured LLM evaluation, and human-reviewed ranking, with full explainability and bias tracking at every stage.
-          </motion.p>
+            <motion.p variants={item} className="mb-8 text-[var(--ink-muted)] leading-relaxed">
+              Shortlister is an end-to-end AI candidate shortlisting platform, built from the ground up — a staged pipeline of rule-based filtering, semantic embeddings, structured LLM evaluation, and human-reviewed ranking, with full explainability and bias tracking at every stage.
+            </motion.p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Grid section animates when scrolled into view */}
+          <motion.div
+            variants={container}
+            initial={shouldReduceMotion ? "show" : "hidden"}
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          >
             {/* Creator 1: Ojass Bhatt */}
             <motion.div
               variants={item}
-              className="liquid-glass rounded-sm p-6 flex flex-col justify-between"
+              whileHover={hoverCard}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="liquid-glass rounded-sm p-6 flex flex-col justify-between transition-shadow hover:shadow-md cursor-default"
             >
               <div>
                 <h2 className="font-display italic text-2xl text-[var(--ink)] mb-1">Ojass Bhatt</h2>
@@ -113,29 +134,35 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4 pt-4 border-t border-[var(--mist)] mt-6">
-                <a
+                <motion.a
+                  whileHover={hoverBtn}
+                  whileTap={tapBtn}
                   href="https://github.com/obj8899"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="liquid-glass flex items-center gap-2 rounded-sm px-4 py-2.5 text-sm text-[var(--ink)] transition-shadow hover:shadow-md"
+                  className="liquid-glass flex items-center gap-2 rounded-sm px-4 py-2.5 text-sm text-[var(--ink)] transition-shadow hover:shadow-md cursor-pointer"
                 >
                   <Code2 size={16} /> GitHub
-                </a>
-                <a
+                </motion.a>
+                <motion.a
+                  whileHover={hoverBtn}
+                  whileTap={tapBtn}
                   href="https://linkedin.com/in/ojass-bhatt-15a09a320"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="liquid-glass flex items-center gap-2 rounded-sm px-4 py-2.5 text-sm text-[var(--ink)] transition-shadow hover:shadow-md"
+                  className="liquid-glass flex items-center gap-2 rounded-sm px-4 py-2.5 text-sm text-[var(--ink)] transition-shadow hover:shadow-md cursor-pointer"
                 >
                   <BriefcaseBusiness size={16} /> LinkedIn
-                </a>
+                </motion.a>
               </div>
             </motion.div>
 
             {/* Creator 2: Palak Tripathi */}
             <motion.div
               variants={item}
-              className="liquid-glass rounded-sm p-6 flex flex-col justify-between"
+              whileHover={hoverCard}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="liquid-glass rounded-sm p-6 flex flex-col justify-between transition-shadow hover:shadow-md cursor-default"
             >
               <div>
                 <h2 className="font-display italic text-2xl text-[var(--ink)] mb-1">Palak Tripathi</h2>
@@ -200,24 +227,28 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4 pt-4 border-t border-[var(--mist)] mt-6">
-                <a
+                <motion.a
+                  whileHover={hoverBtn}
+                  whileTap={tapBtn}
                   href="#"
                   onClick={(e) => e.preventDefault()}
                   className="liquid-glass flex items-center gap-2 rounded-sm px-4 py-2.5 text-sm text-[var(--ink)] transition-shadow hover:shadow-md cursor-default"
                 >
                   <Code2 size={16} /> GitHub
-                </a>
-                <a
+                </motion.a>
+                <motion.a
+                  whileHover={hoverBtn}
+                  whileTap={tapBtn}
                   href="#"
                   onClick={(e) => e.preventDefault()}
                   className="liquid-glass flex items-center gap-2 rounded-sm px-4 py-2.5 text-sm text-[var(--ink)] transition-shadow hover:shadow-md cursor-default"
                 >
                   <BriefcaseBusiness size={16} /> LinkedIn
-                </a>
+                </motion.a>
               </div>
             </motion.div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </motion.main>
   );

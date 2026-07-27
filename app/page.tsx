@@ -1,13 +1,53 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 export default function LandingPage() {
+  const [mounted, setMounted] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+  
+  // Mouse tracking motion values
+  const mouseX = useMotionValue(-100);
+  const mouseY = useMotionValue(-100);
+
+  // Smooth springs for cursor follow
+  const springConfig = { damping: 25, stiffness: 220 };
+  const cursorX = useSpring(mouseX, springConfig);
+  const cursorY = useSpring(mouseY, springConfig);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleMouseMove = (event: React.MouseEvent) => {
+    if (shouldReduceMotion) return;
+    // Center the 24px circle (offset by 12px)
+    mouseX.set(event.clientX - 12);
+    mouseY.set(event.clientY - 12);
+  };
+
+  const hoverBtn = shouldReduceMotion ? undefined : { y: -2 };
+  const tapBtn = shouldReduceMotion ? undefined : { scale: 0.97 };
+
   return (
     <section
-      className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-black text-white"
+      onMouseMove={handleMouseMove}
+      className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-black text-white cursor-default"
       style={{ fontFamily: "var(--font-body)" }}
     >
+      {/* Custom Cursor Accent (Hero section only, disabled if reduced motion preferred) */}
+      {mounted && !shouldReduceMotion && (
+        <motion.div
+          className="fixed top-0 left-0 w-6 h-6 rounded-full bg-[var(--ochre)] opacity-35 blur-[5px] pointer-events-none z-40"
+          style={{
+            x: cursorX,
+            y: cursorY,
+          }}
+        />
+      )}
+
       {/* Background Video */}
       <video
         autoPlay
@@ -30,11 +70,9 @@ export default function LandingPage() {
         >
           Shortlister
         </Link>
-        {/* RECONNECT_ABOUT_START */}
-        <Link href="/about" className="text-sm text-white/70 hover:text-white transition-colors" onClick={(e) => e.preventDefault()}>
+        <span className="text-sm text-white/30 cursor-not-allowed select-none">
           About
-        </Link>
-        {/* RECONNECT_ABOUT_END */}
+        </span>
       </nav>
 
       {/* Hero Content */}
@@ -51,18 +89,22 @@ export default function LandingPage() {
         </p>
 
         <div className="animate-fade-rise-delay-2 flex flex-wrap items-center justify-center gap-4 mt-12">
-          <Link
-            href="/apply"
-            className="liquid-glass rounded-full px-8 py-4 text-base text-white font-medium hover:scale-[1.03] transition-transform cursor-pointer"
-          >
-            I&apos;m applying
-          </Link>
-          <Link
-            href="/admin/login"
-            className="liquid-glass rounded-full px-8 py-4 text-base text-white font-medium hover:scale-[1.03] transition-transform cursor-pointer"
-          >
-            I&apos;m reviewing
-          </Link>
+          <motion.div whileHover={hoverBtn} whileTap={tapBtn}>
+            <Link
+              href="/apply"
+              className="liquid-glass rounded-full px-8 py-4 text-base text-white font-medium cursor-pointer block"
+            >
+              I&apos;m applying
+            </Link>
+          </motion.div>
+          <motion.div whileHover={hoverBtn} whileTap={tapBtn}>
+            <Link
+              href="/admin/login"
+              className="liquid-glass rounded-full px-8 py-4 text-base text-white font-medium cursor-pointer block"
+            >
+              I&apos;m reviewing
+            </Link>
+          </motion.div>
         </div>
       </div>
 

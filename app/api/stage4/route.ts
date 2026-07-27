@@ -1,18 +1,30 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { getPipelineConfig } from "@/lib/pipelineConfig";
+import { getRoleConfig } from "@/lib/pipelineConfig";
 import { sendShortlistEmail } from "@/lib/sendEmail";
 
 export async function POST(req: NextRequest) {
-  const config = await getPipelineConfig();
-  const body = await req.json().catch(() => ({}));
+  let body: any;
+  try {
+    body = await req.json();
+  } catch (err) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const roleId = body?.roleId;
+  if (!roleId) {
+    return NextResponse.json({ error: "roleId is required" }, { status: 400 });
+  }
+
+  const config = await getRoleConfig(roleId);
   const similarityWeight = body.similarityWeight ?? config.similarity_weight;
   const evalWeight = body.evalWeight ?? config.eval_weight;
 
   const { data: candidates, error } = await supabase
     .from("candidates")
     .select("id, similarity_score, stage3_score, manual_override")
-    .eq("stage3_status", "passed");
+    .eq("stage3_status", "passed")
+    .eq("role_id", roleId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -43,6 +55,7 @@ export async function POST(req: NextRequest) {
         shortlisted: isShortlisted,
       })
       .eq("id", scored[i].id)
+      .eq("role_id", roleId)
       .select("name, email, email_sent")
       .single();
 
@@ -51,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     if (!updatedCandidate.email_sent) {
       await sendShortlistEmail(updatedCandidate.email, updatedCandidate.name, isShortlisted, config.role_name);
-      await supabase.from("candidates").update({ email_sent: true }).eq("id", scored[i].id);
+      await supabase.from("candidates").update({ email_sent: true }).eq("id", scored[i].id).eq("role_id", roleId);
     }
   }
 
