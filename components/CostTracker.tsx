@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 
 function CountUp({ value, duration = 0.8, prefix = "", suffix = "", decimals = 2 }: { value: number; duration?: number; prefix?: string; suffix?: string; decimals?: number }) {
   const motionValue = useMotionValue(0);
-  const rounded = useTransform(motionValue, (latest) => `${prefix}${latest.toFixed(decimals)}${suffix}`);
+  const rounded = useTransform(motionValue, (latest) => `${prefix}${(latest ?? 0).toFixed(decimals)}${suffix}`);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ function CountUp({ value, duration = 0.8, prefix = "", suffix = "", decimals = 2
     });
   }, [rounded]);
 
-  return <span ref={ref}>{prefix}{Number(value).toFixed(decimals)}{suffix}</span>;
+  return <span ref={ref}>{prefix}{(Number(value) ?? 0).toFixed(decimals)}{suffix}</span>;
 }
 
 export default function CostTracker({ roleId }: { roleId: string }) {

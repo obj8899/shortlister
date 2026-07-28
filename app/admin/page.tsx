@@ -337,7 +337,7 @@ function AdminDashboard() {
                               </div>
                               <div className="text-right shrink-0 ml-4">
                                 <p className="font-mono text-lg text-[var(--ochre)]">#{c.final_rank}</p>
-                                <p className="font-mono text-xs text-[var(--ink-muted)]">{c.final_score.toFixed(1)}</p>
+                                <p className="font-mono text-xs text-[var(--ink-muted)]">{(c.final_score ?? 0).toFixed(1)}</p>
                               </div>
                             </div>
                             <AnimatePresence mode="popLayout">

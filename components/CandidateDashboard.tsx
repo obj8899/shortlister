@@ -50,7 +50,7 @@ function CountUp({
   return (
     <span>
       {prefix}
-      {display.toFixed(decimals)}
+      {(display ?? 0).toFixed(decimals ?? 0)}
       {suffix}
     </span>
   );
@@ -80,7 +80,7 @@ export default function CandidateDashboard({ data }: CandidateDashboardProps) {
     return "var(--clay)";
   };
 
-  const scoreColor = getScoreColor(ats_score);
+  const scoreColor = getScoreColor(ats_score ?? 0);
 
   // Stepper Stage configuration
   const getStageStatus = (stageNum: number) => {
@@ -239,7 +239,7 @@ export default function CandidateDashboard({ data }: CandidateDashboardProps) {
               backgroundColor: "var(--surface)",
             }}
           >
-            <CountUp value={ats_score} decimals={0} suffix="%" />
+            <CountUp value={ats_score ?? 0} decimals={0} suffix="%" />
           </div>
           <div className="flex-1">
             <div className="flex justify-between items-center mb-1.5">
@@ -247,7 +247,7 @@ export default function CandidateDashboard({ data }: CandidateDashboardProps) {
                 Match strength
               </span>
               <span className="text-xs font-mono font-bold" style={{ color: scoreColor }}>
-                {ats_score}/100
+                {ats_score ?? 0}/100
               </span>
             </div>
             <div className="w-full bg-[var(--mist)]/30 rounded-full h-2 overflow-hidden">
@@ -255,7 +255,7 @@ export default function CandidateDashboard({ data }: CandidateDashboardProps) {
                 className="h-full rounded-full"
                 style={{ backgroundColor: scoreColor }}
                 initial={{ width: 0 }}
-                animate={{ width: `${ats_score}%` }}
+                animate={{ width: `${ats_score ?? 0}%` }}
                 transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
