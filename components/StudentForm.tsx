@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import SkillTagInput from "@/components/SkillTagInput";
+import CollegeAutocomplete from "@/components/CollegeAutocomplete";
 import { studentFormSchema, StudentFormData } from "@/lib/schemas";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -33,6 +34,7 @@ export default function StudentForm({ verifiedEmail, roleId }: StudentFormProps)
   }, [verifiedEmail, setValue]);
 
   const skillsValue = useWatch({ control, name: "skills" }) || "";
+  const collegeValue = useWatch({ control, name: "college" }) || "";
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState("");
 
@@ -158,7 +160,10 @@ export default function StudentForm({ verifiedEmail, roleId }: StudentFormProps)
           animate={errors.college ? { x: [-4, 4, -4, 4, 0] } : { x: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
-          <input {...register("college")} className={fieldClass} placeholder="Your college name" />
+          <CollegeAutocomplete
+            value={collegeValue}
+            onChange={(value) => setValue("college", value, { shouldValidate: true })}
+          />
         </motion.div>
         {errors.college && <p className="text-[var(--clay)] text-xs mt-1">{errors.college.message}</p>}
       </div>
