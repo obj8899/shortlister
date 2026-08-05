@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, type Variants, useReducedMotion, useSpring, useMotionValue } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
@@ -13,7 +13,7 @@ import SoundToggle from "@/components/SoundToggle";
 import BiasDashboard from "@/components/BiasDashboard";
 import CostTracker from "@/components/CostTracker";
 import AdminSettings from "@/components/AdminSettings";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info } from "lucide-react";
 import { toast } from "sonner";
 import Skeleton from "@/components/Skeleton";
 import { Command } from "cmdk";
@@ -38,6 +38,49 @@ const fadeSlide: Variants = {
   show: { opacity: 1, y: 0, x: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
   exit: { opacity: 0, y: -6, x: -8, transition: { duration: 0.2 } },
 };
+
+function StageInfoTooltip({ text }: { text: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div 
+      className="relative flex items-center" 
+      ref={tooltipRef}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <Info 
+        size={14} 
+        className="text-[var(--ink-faint)] hover:text-[var(--ink-muted)] cursor-help transition-colors" 
+      />
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 w-[260px] bg-[var(--surface)] border border-[var(--mist)] rounded-sm p-3 shadow-lg pointer-events-none"
+          >
+            <p className="text-xs text-[var(--ink-muted)] leading-relaxed whitespace-normal">{text}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function CountBadge({ count }: { count: number }) {
   const [prevCount, setPrevCount] = useState(count);
@@ -208,10 +251,34 @@ function AdminDashboard() {
   };
 
   const stages = [
-    { num: 1, label: "Hard filter", endpoint: "/api/stage1", count: stats?.stage1Passed },
-    { num: 2, label: "Embeddings", endpoint: "/api/stage2", count: stats?.stage2Passed },
-    { num: 3, label: "AI evaluator", endpoint: "/api/stage3", count: stats?.stage3Passed },
-    { num: 4, label: "Ranking", endpoint: "/api/stage4", count: stats?.shortlisted },
+    { 
+      num: 1, 
+      label: "Hard filter", 
+      endpoint: "/api/stage1", 
+      count: stats?.stage1Passed,
+      tooltip: "Eliminates candidates who don't meet basic requirements — missing required skills or below the minimum skill count. This is the fastest, cheapest check, run first to reduce the pool before any AI processing." 
+    },
+    { 
+      num: 2, 
+      label: "Embeddings", 
+      endpoint: "/api/stage2", 
+      count: stats?.stage2Passed,
+      tooltip: "Compares each remaining candidate's skills and resume against the role's target profile using AI-generated semantic vectors, scoring how closely their experience matches — beyond exact keyword matching." 
+    },
+    { 
+      num: 3, 
+      label: "AI evaluator", 
+      endpoint: "/api/stage3", 
+      count: stats?.stage3Passed,
+      tooltip: "A language model reads each candidate's profile in depth, scoring problem-solving ability and technical depth, and writes a short explanation for its score — this is the most thorough, most expensive stage, run only on candidates who passed the earlier filters." 
+    },
+    { 
+      num: 4, 
+      label: "Ranking", 
+      endpoint: "/api/stage4", 
+      count: stats?.shortlisted,
+      tooltip: "Combines the embedding similarity score and the AI evaluator score into one final weighted score, ranks all candidates, and marks the top performers as shortlisted based on the configured shortlist size." 
+    },
   ];
 
   return (
@@ -297,6 +364,7 @@ function AdminDashboard() {
                           <div className="flex items-center gap-3">
                             <span className="font-mono text-xs text-[var(--ink-faint)]">0{s.num}</span>
                             <span className="text-sm text-[var(--ink)]">{s.label}</span>
+                            <StageInfoTooltip text={s.tooltip} />
                           </div>
                           <div className="flex items-center gap-4">
                             <span className="font-mono text-sm text-[var(--ledger)]"><CountBadge count={s.count ?? 0} /> passed</span>
