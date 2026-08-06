@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileText, X } from "lucide-react";
+import { FileText, X, ExternalLink } from "lucide-react";
 import { AnimatePresence, motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
 import Skeleton from "@/components/Skeleton";
 import { playSound } from "@/lib/sound";
@@ -12,6 +12,7 @@ interface Candidate {
   name: string;
   skills: string;
   resume_url: string;
+  linkedin_url: string | null;
   flagged: boolean;
   flag_reason: string | null;
   stage1_status: string;
@@ -155,13 +156,25 @@ function CandidateRow({
                 <p className="text-[var(--ink-muted)]">
                   <span className="font-mono text-xs uppercase">Skills:</span> {candidate.skills}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => previewResume(candidate.resume_url)}
-                  className="flex w-fit items-center gap-1.5 font-mono text-xs uppercase text-[var(--ledger)] hover:underline cursor-pointer focus:outline-none"
-                >
-                  <FileText size={13} /> View resume
-                </button>
+                <div className="flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => previewResume(candidate.resume_url)}
+                    className="flex w-fit items-center gap-1.5 font-mono text-xs uppercase text-[var(--ledger)] hover:underline cursor-pointer focus:outline-none"
+                  >
+                    <FileText size={13} /> View resume
+                  </button>
+                  {candidate.linkedin_url && (
+                    <a
+                      href={candidate.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-fit items-center gap-1.5 font-mono text-xs uppercase text-[var(--ledger)] hover:underline cursor-pointer focus:outline-none"
+                    >
+                      <ExternalLink size={13} /> View LinkedIn profile
+                    </a>
+                  )}
+                </div>
                 {candidate.flagged && (
                   <p className="text-[var(--ochre)]">
                     <span className="font-mono text-xs uppercase">Authenticity flag:</span>{" "}

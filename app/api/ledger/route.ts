@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from("candidates")
     .select(
-      "id, name, skills, resume_url, flagged, flag_reason, stage1_status, stage1_reason, stage2_status, similarity_score, stage3_status, stage3_score, stage3_reasoning, final_rank, final_score, shortlisted, manual_override, duplicate_flag, duplicate_reason"
+      "id, name, skills, resume_url, linkedin_url, flagged, flag_reason, stage1_status, stage1_reason, stage2_status, similarity_score, stage3_status, stage3_score, stage3_reasoning, final_rank, final_score, shortlisted, manual_override, duplicate_flag, duplicate_reason"
     )
     .eq("role_id", roleId)
     .order("created_at", { ascending: false });

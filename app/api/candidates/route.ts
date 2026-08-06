@@ -30,6 +30,21 @@ export async function POST(req: NextRequest) {
       { status: 409 }
     );
   }
+  if (body.linkedinUrl && body.linkedinUrl.trim().length > 0) {
+  const { data: linkedinDupe } = await supabase
+    .from("candidates")
+    .select("id, name")
+    .eq("linkedin_url", body.linkedinUrl.trim())
+    .eq("role_id", body.roleId)
+    .maybeSingle();
+
+  if (linkedinDupe) {
+    return NextResponse.json(
+      { error: "This LinkedIn profile has already been used for a submission to this role." },
+      { status: 409 }
+    );
+  }
+}
 
   const normalizedSkills = normalizeSkills(body.skills);
   const authCheck = flagForReview(normalizedSkills);
