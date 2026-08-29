@@ -17,6 +17,8 @@ interface RoleConfig {
   similarity_weight: number;
   eval_weight: number;
   status: string;
+  deadline?: string | null;
+  archived?: boolean;
 }
 
 interface AdminSettingsProps {
@@ -93,6 +95,7 @@ export default function AdminSettings({ onRolesChanged }: AdminSettingsProps) {
           score_threshold: editForm.score_threshold,
           shortlist_size: editForm.shortlist_size,
           status: editForm.status,
+          deadline: editForm.deadline,
         }),
       });
       const data = await res.json();
@@ -113,6 +116,30 @@ export default function AdminSettings({ onRolesChanged }: AdminSettingsProps) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleArchive = (role: RoleConfig) => {
+    toast(`Archive ${role.role_name}?`, {
+      description: `This will archive ${role.role_name} and hide it from candidates. Existing candidate data is NOT deleted and remains fully accessible in this dashboard.`,
+      action: {
+        label: "Archive",
+        onClick: async () => {
+          try {
+            const res = await fetch(`/api/roles/${role.id}/archive`, { method: "PATCH" });
+            if (res.ok) {
+              toast.success("Role archived.");
+              fetchRoles();
+              if (onRolesChanged) onRolesChanged();
+            } else {
+              toast.error("Failed to archive role.");
+            }
+          } catch (err) {
+            console.error(err);
+            toast.error("Failed to archive role.");
+          }
+        },
+      },
+    });
   };
 
   const fieldClass =
@@ -166,24 +193,53 @@ export default function AdminSettings({ onRolesChanged }: AdminSettingsProps) {
                     >
                       {role.status}
                     </span>
-                  </div>
-                  <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => handleManage(role)}
-                    className="flex items-center gap-1 text-xs font-mono uppercase tracking-wide border border-[var(--mist)] px-3 py-1.5 rounded-sm hover:border-[var(--ink)] transition-colors cursor-pointer"
-                  >
-                    {isEditing ? (
-                      <>
-                        Collapse <ChevronUp size={12} />
-                      </>
-                    ) : (
-                      <>
-                        Manage <ChevronDown size={12} />
-                      </>
+                    {role.archived && (
+                      <span className="text-[10px] font-mono uppercase tracking-wide border border-[var(--mist)] text-[var(--ink-muted)] bg-[var(--surface)] rounded-sm px-1.5 py-0.5">
+                        Archived
+                      </span>
                     )}
-                  </motion.button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!role.archived && (
+                      <motion.button
+                        whileHover={{ y: -1 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleArchive(role)}
+                        className="flex items-center gap-1 text-xs font-mono uppercase tracking-wide border border-[var(--clay)] text-[var(--clay)] px-3 py-1.5 rounded-sm hover:bg-[var(--clay)] hover:text-[var(--paper)] transition-colors cursor-pointer"
+                      >
+                        Archive role
+                      </motion.button>
+                    )}
+                    <motion.button
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => handleManage(role)}
+                      className="flex items-center gap-1 text-xs font-mono uppercase tracking-wide border border-[var(--mist)] px-3 py-1.5 rounded-sm hover:border-[var(--ink)] transition-colors cursor-pointer"
+                    >
+                      {isEditing ? (
+                        <>
+                          Collapse <ChevronUp size={12} />
+                        </>
+                      ) : (
+                        <>
+                          Manage <ChevronDown size={12} />
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
                 </div>
+                {role.deadline && (
+                  <div className="px-4 pb-3 bg-[var(--surface)] flex items-center">
+                    <span className="text-xs text-[var(--ink-muted)] font-mono">
+                      Applications close: {new Date(role.deadline).toLocaleString()}
+                    </span>
+                    {new Date(role.deadline) < new Date() && (
+                      <span className="ml-3 bg-[var(--clay)]/10 text-[var(--clay)] border border-[var(--clay)]/20 px-1.5 py-0.5 rounded-sm uppercase tracking-wide text-[10px] font-mono">
+                        Deadline passed
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <AnimatePresence initial={false}>
                   {isEditing && editForm && (
@@ -218,6 +274,17 @@ export default function AdminSettings({ onRolesChanged }: AdminSettingsProps) {
                             <option value="open">Open</option>
                             <option value="closed">Closed</option>
                           </select>
+                        </div>
+                        <div>
+                          <label className={labelClass}>Application deadline (optional)</label>
+                          <input
+                            type="datetime-local"
+                            value={editForm.deadline ? new Date(new Date(editForm.deadline).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                            onChange={(e) =>
+                              setEditForm({ ...editForm, deadline: e.target.value ? new Date(e.target.value).toISOString() : null })
+                            }
+                            className={fieldClass}
+                          />
                         </div>
                         <div>
                           <label className={labelClass}>Required skills (comma separated)</label>

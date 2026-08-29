@@ -298,6 +298,11 @@ export default function ApplyPage() {
                       <p className="text-xs text-[var(--ink-muted)] leading-relaxed mb-4">
                         {truncateText(role.target_profile)}
                       </p>
+                      {role.deadline && (
+                        <p className="text-xs text-[var(--ochre)] font-mono mb-4">
+                          Apply by {new Date(role.deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                        </p>
+                      )}
                     </div>
                     <span className="font-mono text-[10px] uppercase tracking-wide text-[var(--ledger)] flex items-center gap-1">
                       Apply Now <ChevronRight size={10} />

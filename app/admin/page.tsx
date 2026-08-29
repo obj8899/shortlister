@@ -340,8 +340,12 @@ function AdminDashboard() {
               className="bg-[var(--surface)] text-[var(--ink)] border border-[var(--mist)] rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--ochre)] cursor-pointer"
             >
               {roles.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.role_name}
+                <option 
+                  key={r.id} 
+                  value={r.id}
+                  className={r.archived ? "text-[var(--ink-faint)]" : ""}
+                >
+                  {r.archived ? `[Archived] ${r.role_name}` : r.role_name}
                 </option>
               ))}
             </select>

@@ -70,9 +70,12 @@ export default function LandingPage() {
         >
           Shortlister
         </Link>
-        <span className="text-sm text-white/30 cursor-not-allowed select-none">
+        <Link
+          href="/about"
+          className="text-sm text-white/70 hover:text-white transition-colors"
+        >
           About
-        </span>
+        </Link>
       </nav>
 
       {/* Hero Content */}
